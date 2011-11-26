@@ -1,0 +1,22 @@
+Final Project
+
+Notes:
+
+1.  Install CIAO
+
+2.  Download Data
+	1. >> download_chandra_obsid 114 evt2
+		a.  This downloads the event2 file of observation 114.  The event 2 file is the data that was obtained from the observation and has gone through two pipelines of automated processing.  
+	2.  Convert the evt2.fits file from fits table format to a fits image format.  Then convert to a jpg image.  
+		a. >>  dmcopy acisf00114N004_evt2.fits.gz 114_img.fits option=image
+		b.  >> dmimg2jpg "114_img.fits" out=114_img.jpg scalefun=log mode=h clob+
+	3.  This allows us to utilize the information in the fits file easily to pass to the GPU as an image file.  The images are 8192x8191 pixels as a full view.  Each Chandra ACIS ccd is 1024x1024 pixels.
+
+
+3.  Sample data sets (images)
+	a. OBSID 114 - CAS A (http://en.wikipedia.org/wiki/Cassiopeia_A)
+	b. OBSID 7417 - Cluster in NGC 2071
+	c. OBSID 321 - NGC 4472 = M49 (Galaxy in Virgo)
+	d. OBSID 11759 - J0417.5-1154 (Strong lensing cluster)
+
+

@@ -1,0 +1,100 @@
+
+
+Summary:
+
+Adaptively smooth image.  Each pixel in image is independently smoothed until some threshold is met.  
+This is used to smooth high contrast ratio images: the goal is to apply little smoothing to bright objects and large smoothing to the background; with a need to preserve the total energy (or flux).
+
+High Level Overview: 
+
+For each pixel in an image, find the smallest box such that the sum of the pixels inside the box is at least some threshold value.  
+
+Using that box size, create a properly normalized output image where sum(input pixels) = sum(output pixels)
+
+Generalizations:
+
+1 - Replace "sum" with "weighted sum" where the weights may be Gaussian(x,y) = N exp(-(x^2+y^2)/s)
+Or instead of a Gaussian use a Cone, Tophat, Boxcar, or other convolution method.
+
+2 - Add ability to include background image subtraction
+
+3.  Add in an exposure correction
+
+
+# ----------------------
+# Sample Code for serial method
+#-----------------------
+
+LOAD image, IMG
+
+Let Lx = length of x-axis of IMG
+Let Ly = length of y-axis of IMG
+
+Let RAD = Lx, Ly float array init to 0
+Let TOTAL = Lx, Ly float array init to 0
+Let NORM = Lx, Ly float array init to 0
+Let OUT = Lx, Ly float array init to 0
+
+Let Threshold = min sum value
+Let MaxRad = maximun allowable box size
+
+#----------------------
+Let w[*][*] = 1.0
+
+for ( x = 0; x < Lx; x++)
+    for(y=0; y<Ly; y++)
+        q = 0
+        sum = 0
+        ksum = 0
+        s = q
+        
+        While(sum < Threshold) && (q < MaxRad)
+            ss = q
+            sum = 0
+            ksum = 0
+
+            for(i=-s; i<=s; i++)
+                for(j=-s; j<=s; j++)
+                    sum+= (IMG[x+i][y+j] * w[i+s][j+s])
+                    ksum += (w[i+s][j+s])
+                end for j
+            end for i
+            q += 1
+        end while
+
+        RAD[x][y] = s
+        TOTAL[x][y] = sum
+        
+        for(i = -s; i <= s; i++)
+            for(j = -s; j<=s; j++)
+                NORM[x+m][y+n] += (w[i+s][j+s]/ksum)
+            end for j
+        end for i
+
+    end for y
+end for x
+#--------------------
+
+for(x=0; x<Lx; x++)
+    for(y=0; y< Ly; y++)
+        IMG[x][y] /= NORM[x][y]
+    end for y
+end for x
+
+#--------------------
+for(x=0; x<Lx; x++)
+    for(y=0; y<Ly; y++)
+        s = RAD[x][y]
+        sum = 0
+        ksum = 0
+
+        for(i=-s; i <=s; i++)
+            for(j=-s; j<=s j++)
+                sum += (IMG[x+i][y+i]*w[i+s][j+s])
+                ksum += w[i+s][j+s]
+            end for j
+        end for i
+    
+        OUT[x][y] = sum / ksum
+    end for y
+end for x
