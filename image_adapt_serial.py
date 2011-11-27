@@ -62,7 +62,7 @@ for xx in range(Lx):
             for(jj=-ss; jj <= ss; jj++):
                 sum += (IMG[xx+ii][yy+jj]*ww[ii+ss][jj+ss])
                 ksum += ww[ii+ss][jj+ss]
-        OUT[xx][yy = sum / ksum
+        OUT[xx][yy] = sum / ksum
 #---------------------------------------------------------------
 print "Processing %d x %d image" % (width, height)
 
