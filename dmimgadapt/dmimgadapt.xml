@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE cxchelptopics SYSTEM "CXCHelp.dtd">
+<cxchelptopics>
+<ENTRY key="dmimgadapt" context="tools" refkeywords="dm image images adaptive smooth gaussian tophat boxcar" seealsogroups="dmimgtools">
+<SYNOPSIS>
+  Adaptively smoothes an image based on number of counts
+</SYNOPSIS>
+<ADDRESS><URL>dmimgadapt.html</URL></ADDRESS>
+<ADDRESS>
+<URL>http://cxc.harvard.edu/ciao/ahelp/dmimgadapt.html</URL>
+
+</ADDRESS>
+<DESC>
+<PARA>
+  `dmimgadapt' performs (yet another) type of adaptive image
+  smoothing.  The output image will tend to preserve small scale
+  features while larger features get smoothed out over a larger area.
+
+</PARA>
+<PARA>
+  The algorithm used is a two-pass method.  During the first
+  iteration, the image at any given pixel is convolved w/ one of the
+  convolution kernels.  The size of the convolution kernel is
+  increased until the convolution sum is greater-than or equal to the
+  'counts' parameter value or the 'maxrad' scale is reached.  This
+  convolution sum is (optionally) saved in the 'sumfile' output file.
+</PARA>
+<PARA>
+  Unlike <HREF link="http://cxc.harvard.edu/ciao/ahelp/csmooth.html">csmooth</HREF>, which smoothes the entire image at each scale,
+  `dmimgadapt' smoothes each pixel with only the scales it needs to, to
+  find where the counts threshold is exceeded.
+
+  For speed reasons we make use of the fact that within an image we
+  are more-likely than not to want to use a similar sized scale to the
+  'last' pixel smoothed.  So instead of starting at the min and
+  looping through to the max, we start at the last scale that was
+  used, if the counts are exceeded we step backwards through the
+  scales until we drop below the threshold.  If counts are not met,
+  then we increase scales until we exceed threshold.  Since edges are
+  typically smoothed at large scales, this speedup is equally useful
+  when going from row-to-row at the last and then first column of the image.
+</PARA>
+<PARA>
+  Since the smoothing scale includes contribution from other pixels we
+  have to keep track of how much each pixel is used in smoothing 
+  all the other pixels.  This provides a natural flux-preserving
+  normalization to the input data.  This value is output in the
+  'normfile'.
+</PARA>
+<PARA>
+  Only after all the scale sizes have been determined is the
+  normalization map complete.  So after all the scale sizes are
+  found, the input data are renormalized and the final pass at
+  smoothing the normalized data is performed.  The 'radfile' will
+  optionally contain the smoothing scales used.  The 'outfile' will
+  contain the final smoothed image.
+</PARA>
+
+<PARA>
+  dmimgadapt will respect the NULL or NaN values in the input image.
+Also any image subspace (region filter) is respected.  Edges are
+clipped so that the mask is again reduced in size.
+</PARA>
+
+<PARA>
+  Users can also supply their own scale file (eg input the radfile
+  from a previous run).  This allows users to do something like smooth
+  two different energy bands with the same scales.
+</PARA>
+
+
+</DESC>
+<QEXAMPLELIST>
+<QEXAMPLE>
+  <SYNTAX>
+    <LINE>
+    dmimgadapt in.fits out.fits func=tophat min=0.1 max=10 num=20 rad=log counts=30
+    </LINE>
+  </SYNTAX>
+  <DESC>
+    <PARA>
+      Smoothed the image in 'in.fits' with a tophat function with
+    radii/scales ranging from 0.1 to 10.  There are 20 such scales
+    spaced logarithmically between the min and max.  The output image
+    will have had 30 counts per-pixel when the data were convolved.
+    </PARA>
+  </DESC>
+</QEXAMPLE>
+
+<QEXAMPLE>
+  <SYNTAX>
+    <LINE>
+    dmimgadapt in.fits out.fits func=gaussian min=1.0 max=30 num=30
+    rad=linear counts=30 sumfile=sum.fits normfile=norm.fits radfile=scale.fits
+    </LINE>
+   </SYNTAX>
+  <DESC>
+    <PARA>
+      The input image is convolved w/ Gaussian functions
+    with sigma values ranging from 1 to 30 image pixels in size (in
+    1 pixel increments).  The output image will have had 30 counts per
+    pixel when convolved w/ the Gaussian of the determined size.
+    </PARA>
+    <PARA>
+      The diagnostic images sum.fits will contain the convolved sums,
+    norm.fits indicates how much each input pixels was used by all the
+    output pixels, and scale.fits shows the smoothing scales used at
+    each pixel.
+    </PARA>
+
+  </DESC>
+</QEXAMPLE>
+<QEXAMPLE>
+<SYNTAX>
+<LINE>
+    dmimgadapt in.fits out.fits func=gaussian min=1.0 max=30 num=30
+    rad=linear counts=30 sumfile=sum.fits normfile=norm.fits radfile=scale.fits
+
+</LINE>
+<LINE>
+    dmimgadapt in_2.fits out_2.fits func=gaussian inradfile=scale.fits mode=h
+</LINE>
+</SYNTAX>
+<DESC>
+<PARA>
+  Similar to above, but the 2nd time dmimgadapt is run, instead of
+  supplying the min, max, number, scaling, and min counts, we are
+  using the output scale.fits file from the previous run to smooth
+  a second image with the same scales.
+</PARA>
+<PARA>
+  Because we did not supply an innormfile, the flux in the output image
+  will not exactly equal the flux in the input image.
+</PARA>
+</DESC>
+</QEXAMPLE>
+</QEXAMPLELIST>
+
+
+<PARAMLIST>
+<PARAM name="infile" type="file" reqd="yes" filetype="input" stacks="no">
+<SYNOPSIS>
+
+	The input image. 
+    
+</SYNOPSIS>
+<DESC>
+<PARA>
+
+  The input 2D image.   
+      
+</PARA>
+
+</DESC>
+
+</PARAM>
+<PARAM name="outfile" type="file" reqd="yes" filetype="output">
+<SYNOPSIS>
+
+	The output file name
+    
+</SYNOPSIS>
+<DESC>
+<PARA>
+   The output smoothed image.
+</PARA>
+
+</DESC>
+
+</PARAM>
+<PARAM name="function" type="string" reqd="yes" def="tophat" >
+<SYNOPSIS>
+
+  The convolution filter function to use.
+    
+</SYNOPSIS>
+<DESC>
+<PARA>
+
+  The allowed values for 'function' are "tophat", "boxcar",
+  "gaussian", "cone", "pyramid", "exp", "lor" (Beta/Lorentzian),
+  "walrewop" (aka "powerlaw"), "hemisphere", and "quad" which 
+  is the Epanechnikov quadratic.
+
+</PARA>
+<PARA>
+  Note:  The kernels are computed such that fractional area covered is
+  by the kernels are included.  They are then explicity normalized to
+  have a max value =1.  So, while a tophat w/ radii =0.1 and 0.2 will
+  be identical (a single pixel=1), a tophat w/ radii = 1.1 and 1.5
+  will be different.
+</PARA>
+</DESC>
+</PARAM>
+
+<PARAM name="minrad" type="real" def="0.5" reqd="yes">
+<SYNOPSIS>
+  Minimum smoothing scale
+</SYNOPSIS>
+<DESC>
+<PARA>
+  The smallest radius or scale that the image will be smoothed at. All
+  scales are in image pixels.
+</PARA>
+</DESC>
+</PARAM>
+
+<PARAM name="maxrad" type="real" def="10" reqd="yes">
+<SYNOPSIS>
+  Maximum smoothing scale
+</SYNOPSIS>
+<DESC>
+<PARA>
+  The largest radius or scale that the image will be smoothed at.
+  Larger smoothing scales take longer, so users may want to do one run
+  with a medium sized scale and see which pixels did not meet the
+  min. number of counts criteria by examining the 'sumfile' and then
+  possibly increasing the maxrad if desired. All
+  scales are in image pixels.
+</PARA>
+</DESC>
+</PARAM>
+
+
+<PARAM name="numrad" type="integer" def="20" reqd="yes">
+<SYNOPSIS>
+  The number of radii/scales to use
+</SYNOPSIS>
+<DESC>
+<PARA>
+  The more scales that are used, the more 'natural' the smoothing will
+  appear; however, as more scales are added the run-time will increase.
+</PARA>
+</DESC>
+</PARAM>
+
+
+<PARAM name="radscale" type="real" def="log" reqd="yes">
+<SYNOPSIS>
+  Controls the spacing between the radii
+</SYNOPSIS>
+<DESC>
+<PARA>
+  The radii can either be created on a linear scale or a logarithmic
+  scale.  The former is useful when there are features of uniformly
+  varying size in the image.  The later will work harder on smaller
+  features in the image and smooth larger features at more coarse
+  resolutions.
+
+
+</PARA>
+</DESC>
+</PARAM>
+
+<PARAM name="counts" type="real" def="0" reqd="yes">
+<SYNOPSIS>
+  The minimum number of counts 'under' the kernel.
+</SYNOPSIS>
+<DESC>
+<PARA>
+  The minimum integral of the kernel*image.  If the minimum number of
+  counts is not met, the kernel size is increased up to the max.
+</PARA>
+</DESC>
+</PARAM>
+
+
+<PARAM name="inradfile" type="file" def="" reqd="no">
+<SYNOPSIS>
+  Image with pre-determined smoothing scales
+</SYNOPSIS>
+<DESC>
+  <PARA>
+  Users can supply their own image with pre-determined scales.  This
+  can be the output stored in the "radfile" file from a previous run
+  or any other image that has the same dimensions.
+  </PARA>
+  <PARA>
+   When inradfile is used, the following parameters are not used:
+   minrad, maxrad, numrad, radscale, and counts.
+  </PARA>
+  <PARA>
+  Note that it is possible to use a different function (tophat,
+  Gaussian, etc) than was used to create the inradfile. (Since image
+  does not have to have been created by dmimgadapt.)
+  </PARA>
+</DESC>
+</PARAM>
+
+
+<PARAM name="innormfile" type="file" def="" reqd="no">
+<SYNOPSIS>
+  Image with pre-determined normalizations
+</SYNOPSIS>
+<DESC>
+<PARA>
+  To preserve flux the normalizaitons to the image must be supplied as
+  a second input file.  HOWEVER, these normalizations will impose
+  artifacts of the originally smoothed image onto the current input.
+  For example, if one tries to smooth an exposure map with the same
+  scales (inradfile) and normalization (innormfile) as a counts image,
+  the output image will have depressions where there are point
+  sources in the counts image.  Flux will be preserved between the
+  infile and outfile.
+</PARA>
+  
+<PARA>
+  If the innormfile is not supplied then a value of 1 is used for all
+  pixels (can be seen if output normfile is requested).  This will not
+  preserve flux between the input and output images; but the output image
+  will not have structure in the original input image imposed on it.
+</PARA>
+<PARA>
+  When should innormfile be used?  If you want to smooth the same data
+  with the same scales then you probably want to supply the innormfile.
+  If you are smoothing an image with the same units (eg counts) then
+  you may want to provide the innormfile.  When smoothing an image
+  with different units (eg exposure) then leaving innormfile="" or
+  "none" is best.  If inradfile is not supplied then innormfile is ignored.
+</PARA>
+</DESC>
+</PARAM>
+
+
+
+<PARAM name="sumfile" type="real" def="" reqd="no" filetype="output">
+<SYNOPSIS>
+  Image with sum determined in the first pass.
+</SYNOPSIS>
+<DESC>
+<PARA>
+will be greater-than or equal to 'counts' (unless maxscale was too small).
+
+</PARA>
+</DESC>
+</PARAM>
+
+
+<PARAM name="normfile" type="real" def="" reqd="no" filetype="output">
+<SYNOPSIS>
+  Image with the data normalization
+</SYNOPSIS>
+<DESC>
+<PARA>
+  Each input image pixel contributes to several output pixels.  This
+  image shows how much each input pixel was used when making the
+  output image.
+</PARA>
+</DESC>
+</PARAM>
+
+
+<PARAM name="radfile" type="real" def="" reqd="no" filetype="output">
+<SYNOPSIS>
+  The smoothing scales
+</SYNOPSIS>
+<DESC>
+<PARA>
+  This image shows the smoothing scales/radii used at each pixel location.
+</PARA>
+</DESC>
+</PARAM>
+
+
+<PARAM name="clobber" type="boolean" def="no">
+<SYNOPSIS>
+
+	Remove output if it exists?
+    
+</SYNOPSIS>
+<DESC>
+<PARA>
+
+	Used to specify whether or not to clobber existing file that
+	has the same name as the specified output file
+         
+</PARA>
+</DESC>
+</PARAM>
+<PARAM name="verbose" type="integer" def="0" min="0" max="5">
+<SYNOPSIS>
+
+	The tool chatter level
+    
+</SYNOPSIS>
+<DESC>
+<PARA>
+
+	Verbose can be from 0 to 5, generating different amounts
+        of debugging output.
+         
+</PARA>
+
+</DESC>
+
+</PARAM>
+</PARAMLIST>
+<BUGS><PARA>
+	See the
+        <HREF link="http://cxc.harvard.edu/ciao/bugs/dmimgadapt.html">bugs page
+	for this tool</HREF>
+        on the CIAO website for an up-to-date listing of known bugs.
+      </PARA></BUGS>
+<VERSION>CIAO 4.3</VERSION>
+<LASTMODIFIED>December 2010</LASTMODIFIED>
+
+</ENTRY>
+
+</cxchelptopics>

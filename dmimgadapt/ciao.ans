@@ -1,0 +1,984 @@
+# ciao.ans   - Analysis Menu Definition file for CIAO 4.1
+
+Edit Parameter File #tip Parameter editor GUI (peg)
+*
+menu
+peg "$entry(Parameter file name)" infile=$filename | $null
+
+---
+
+hmenu GUI Applications #tip Launch a GUI application  
+   ds9  # tip Imaging GUI
+   *.fits 
+   menu 
+   ds9 $filename | $null
+
+   Peg  # tip Parameter editor
+   *
+   menu
+   peg | $null
+
+   Prism # tip File browser
+   *
+   menu 
+   prism $filename | $null 
+endhmenu
+
+---
+
+   ds9 - imaging  # tip Imaging GUI
+   *.fits 
+   menu 
+   ds9 $filename | $null
+
+---
+
+# start "Data Preparation" menu
+  hmenu Data Preparation # tip Chandra only
+      acis_build_badpix # tip Create an observation-specific bad pixel file for ACIS
+      *
+      menu 
+      peg acis_build_badpix infile=$filename | $null
+
+      acis_classify_hotpix # tip Determine whether a pixel is hot or an afterglow
+      *
+      menu 
+      peg acis_classify_hotpix infile=$filename | $null
+
+      acis_detect_afterglow  # tip Identify and flag cosmic ray afterglows
+      *.fits 
+      menu 
+      peg acis_detect_afterglow infile=$filename | $null
+
+      acis_fef_lookup # tip Find the FEF file for use by mkrmf
+      *
+      menu
+      peg acis_fef_lookup infile=$filename | $NULL
+
+      acis_find_hotpix # tip Identify pixels that have an unusual number of events
+      *
+      menu 
+      peg acis_find_hotpix infile=$filename | $null
+
+      acis_process_events # tip Produce/update ACIS TIME, coordinates, PI, GRADE, STATUS
+      *.fits 
+      menu
+      peg acis_process_events infile=$filename | $null
+
+      acisreadcorr # tip Flag and relocate out-of-time CCD events
+      *
+      menu
+      peg acisreadcorr infile=$filename | $null
+
+      acis_run_hotpix # tip Identify and flag hot pixels and cosmic-ray afterglows
+      *
+      menu 
+      peg acis_run_hotpix infile=$filename | $null
+
+      asphist # tip Bin the aspect solution into a 3D histogram
+      *
+      menu
+      peg asphist infile=$filename | $null
+
+      destreak # tip Remove streak events from ACIS data
+      * 
+      menu 
+      peg destreak infile=$filename | $null
+
+      hrc_build_badpix # tip Create an observation-specific bad pixel file for HRC
+      *
+      menu 
+      peg hrc_build_badpix infile=$filename | $null
+
+      hrc_dtfstats # tip Calculate statistics from HRC dead time and a GTI
+      *
+      menu 
+      peg hrc_dtfstats infile=$filename | $null
+
+      hrc_process_events # tip Produce/update HRC TIME, coordinates, PI, STATUS
+      *
+      menu
+      peg hrc_process_events infile=$filename | $null
+
+      skyfov # tip Make a field-of-view region in sky coordinates
+      *
+      menu
+      peg skyfov infile=$filename | $null
+  endhmenu
+# end "Data Preparation" menu
+
+# start "Imaging" menu
+  hmenu Imaging 
+      aconvolve # tip Convolve an N-dimensional image with a kernel
+      *
+      menu
+      peg aconvolve infile=$filename | $null
+
+      acrosscorr # tip Cross-correlate two N-dimensional images
+      *
+      menu 
+      peg acrosscorr | $null
+
+      apowerspectrum  # tip Compute power spectrum of an N-dimensional array
+      *
+      menu 
+      peg apowerspectrum | $null
+
+      arestore # tip Restore data using deconvolution techniques
+      *
+      menu
+      peg arestore infile=$filename | $null
+
+      asphist # tip Bin the aspect solution into a 3D histogram
+      *
+      menu
+      peg asphist infile=$filename | $null
+
+      celldetect # tip Use a "sliding cell" to search for sources
+      *
+      menu
+      peg celldetect infile=$filename
+
+      csmooth # tip Adaptively smooth a 2-D image
+      *
+      menu
+      peg csmooth infile=$filename | $null
+  
+      dither_region # tip Compute fraction of region area that covers chips
+      *
+      menu 
+      peg dither_region infile=$filename | $null
+
+      dmcontour # tip Make contour regions from a 2-D image
+      *
+      menu 
+      peg dmcontour infile=$filename | $null
+
+      dmextract # tip Make a histogram table file from a table column
+      *  
+      menu  
+      peg dmextract infile=$filename | $null
+  
+      dmfilth # tip Replace pixel values in source regions of an image
+      *  
+      menu  
+      peg dmfilth infile=$filename | $null
+  
+      dmimg2jpg # tip Make a color JPEG from three image files
+      *  
+      menu  
+      peg dmimg2jpg infile=$filename | $null
+  
+      dmimgcalc # tip Perform arithmetic on images
+      *  
+      menu  
+      peg dmimgcalc infile=$filename | $null
+
+      dmimghist # tip Make a histogram of values in a 2-D image
+      *  
+      menu  
+      peg dmimghist infile=$filename | $null
+
+      dmimgthresh # tip Set low exposure regions of an image to zero
+      *  
+      menu  
+      peg dmimgthresh infile=$filename | $null
+
+      dmregrid # tip Rebin a stack of 2-dimensional images
+      *
+      menu 
+      peg dmregrid infile=$filename | $null
+
+      get_src_region # tip Output regions that have counts higher than background
+      *
+      menu 
+      peg get_src_region infile=$filename | $null
+
+      mkexpmap # tip Generate a Chandra imaging exposure map
+      *
+      menu
+      peg mkexpmap | $null
+
+      mkinstmap # tip Generate a Chandra instrument map
+      *
+      menu
+      peg mkinstmap | $null
+ 
+      mkpsf # tip Extract a point spread function from a PSF library
+      *
+      menu
+      peg mkpsf | $null
+
+      psf_project_ray # tip Project rays generated by ChaRT onto semi-infinite detector planes
+      *
+      menu
+      peg psf_project_ray | $null
+
+      reproject_aspect # tip Modify aspect to minimize position differences between two source lists
+      *
+      menu 
+      peg reproject_aspect infile=$filename | $null
+
+      reproject_events # tip Regrid event file(s) to a common tangent point
+      *
+      menu
+      peg reproject_events infile=$filename | $null
+
+      reproject_image # tip Map an image in one WCS reference frame to that of another image
+      *
+      menu 
+      peg reproject_image infile=$filename | $null
+
+      reproject_image_grid # tip Map an image in one WCS reference frame to a specified WCS grid
+      *
+      menu 
+      peg reproject_image_grid infile=$filename | $null
+
+      sso_freeze # tip Reproject sky coordinates into an SSO-centered reference frame 
+      *
+      menu
+      peg sso_freeze infile=$filename | $null
+
+      vtpdetect # tip Voronoi Tessellation and Percolation (VTP) source detection
+      *
+      menu
+      peg vtpdetect infile=$filename | $null
+   
+      wavdetect # tip Mexican-Hat Wavelet source detection
+      *
+      menu
+      peg wavdetect infile=$filename | $NULL
+
+  endhmenu
+# end  "Imaging" menu
+
+# start "Imaging Spectroscopy" menu
+  hmenu Imaging Spectroscopy
+
+      acis_fef_lookup # tip Find the FEF file for use by mkrmf
+      *
+      menu
+      peg acis_fef_lookup infile=$filename | $NULL
+
+      asphist # tip Bin the aspect solution into a 3D histogram
+      *
+      menu
+      peg asphist infile=$filename | $null
+       
+      dmextract # tip Make a histogram table file from a table column
+      *  
+      menu  
+      peg dmextract infile=$filename | $null
+
+      dmgroup # tip Group a specified column in a table
+      *  
+      menu  
+      peg dmgroup infile=$filename | $null
+
+      dmstat # tip Compute statistics for 2D images and table columns
+      *
+      menu 
+      peg dmstat infile=$filename | $null
+
+      mkacisrmf # tip Generate an RMF for Chandra imaging data
+      *
+      menu 
+      peg mkacisrmf infile=$filename | $null
+
+      mkarf # tip Generate an ARF for Chandra imaging data
+      *
+      menu 
+      peg mkarf | $null
+
+      mkrmf # tip Create RMF from an FEF file on a given 2-D grid plane
+      *
+      menu
+      peg mkrmf | $null
+
+      mkwarf # tip Compute the weighted ARF based on an input WMAP
+      *
+      menu 
+      peg mkwarf | $null
+
+      psextract # tip Extract source and background ACIS spectra
+      *
+      menu
+      peg psextract | $null
+
+      rmfimg # tip Convert an RMF in Legacy format to a simple image
+      *
+      menu
+      peg rmfimg infile=$filename | $null
+
+      specextract # tip Extended source ACIS spectra and responses
+      *
+      menu
+      peg specextract | $null
+
+  endhmenu
+# end "Imaging Spectroscopy" menu
+
+# start "Grating Spectroscopy" menu
+  hmenu Grating Spectroscopy
+
+      add_grating_orders  # tip Add diffraction orders of a grating spectrum
+      *
+      menu
+      peg add_grating_orders | $null
+
+      add_grating_spectra # tip Add two grating spectra and responses
+      *
+      menu
+      peg add_grating_spectra | $null
+
+      asphist # tip Bin the aspect solution into a 3D histogram
+      *
+      menu
+      peg asphist infile=$filename | $null
+
+      destreak # tip Remove streak events from ACIS data
+      * 
+      menu 
+      peg destreak infile=$filename | $null
+
+      dmarfadd # tip Add multiple ARF files together
+      *
+      menu
+      peg dmarfadd infile=$filename | $null
+  
+      dmimg2jpg # tip Make a color JPEG from three image files
+      *  
+      menu  
+      peg dmimg2jpg infile=$filename | $null
+
+      dmtype2split # tip Create a type 1 PHA file from a type 2 PHA file
+      *
+      menu
+      peg dmtype2split infile=$filename | $null
+
+      fullgarf # tip Create a grating arf
+      *
+      menu 
+      peg fullgarf infile=$filename | $null
+
+      mkgarf # tip Generate a Chandra Grating ARF
+      *
+      menu
+      peg mkgarf | $null
+
+      tg_create_mask # tip Create a region file to define spectrum sky boundaries
+      *
+      menu
+      peg tg_create_mask infile=$filename | $null
+
+      tg_resolve_events # tip Assign grating events to spectral orders
+      * 
+      menu
+      peg tg_resolve_events infile=$filename | $null
+
+      tgdetect # tip Detect and centroid the zero order image in a grating event list
+      * 
+      menu
+      peg tgdetect infile=$filename | $null
+
+      tgextract # tip Extract a grating spectrum from an event list
+      * 
+      menu
+      peg tgextract infile=$filename | $null
+
+  endhmenu
+# end "Grating Spectroscopy" menu
+
+# start "Timing Analysis" menu
+  hmenu Timing Analysis
+ 
+      apowerspectrum  # tip Compute power spectrum of an N-dimensional array
+      *
+      menu 
+      peg apowerspectrum | $null
+
+      axbary # tip Apply barycentric corrections to event times, GTIs, and header values
+      *
+      menu
+      peg axbary infile=$filename | $null
+       
+      dmextract # tip Make a histogram table file from a table column
+      *  
+      menu  
+      peg dmextract infile=$filename | $null
+
+  endhmenu
+# end "Timing Analysis" menu
+
+---
+
+# start "Tools" menu
+  hmenu Tools - alphabetical # tip Complete list of CIAO tools
+   hmenu A-C
+      acis_build_badpix # tip Create an observation-specific bad pixel file for ACIS
+      *
+      menu 
+      peg acis_build_badpix infile=$filename | $null
+
+      acis_classify_hotpix # tip Determine whether a pixel is hot or an afterglow
+      *
+      menu 
+      peg acis_classify_hotpix infile=$filename | $null
+
+      acis_detect_afterglow  # tip Identify and flag cosmic ray afterglows
+      *.fits 
+      menu 
+      peg acis_detect_afterglow infile=$filename | $null
+
+      acis_fef_lookup # tip Find the FEF file for use by mkrmf
+      *
+      menu
+      peg acis_fef_lookup infile=$filename | $NULL
+
+      acis_find_hotpix # tip Identify pixels that have an unusual number of events
+      *
+      menu 
+      peg acis_find_hotpix infile=$filename | $null
+
+      acis_process_events # tip Produce/update ACIS TIME, coordinates, PI, GRADE, STATUS
+      *.fits 
+      menu
+      peg acis_process_events infile=$filename | $null
+
+      acisreadcorr # tip Flag and relocate out-of-time CCD events
+      *
+      menu
+      peg acisreadcorr infile=$filename | $null
+
+      acis_run_hotpix # tip Identify and flag hot pixels and cosmic-ray afterglows
+      *
+      menu 
+      peg acis_run_hotpix infile=$filename | $null
+
+      aconvolve # tip Convolve an N-dimensional image with a kernel
+      *
+      menu
+      peg aconvolve infile=$filename | $null
+
+      acrosscorr # tip Cross-correlate two N-dimensional images
+      *
+      menu 
+      peg acrosscorr | $null
+
+      add_grating_orders  # tip Add diffraction orders of a grating spectrum
+      *
+      menu
+      peg add_grating_orders | $null
+
+      add_grating_spectra # tip Add two grating spectra and responses
+      *
+      menu
+      peg add_grating_spectra | $null
+ 
+      addresp # tip Add multiple response matrix files together
+      *
+      menu
+      peg addresp infile=$filename | $null
+ 
+      apowerspectrum  # tip Compute power spectrum of an N-dimensional array
+      *
+      menu 
+      peg apowerspectrum | $null
+
+      aprates # tip Compute aperture fluxes with proper errors 
+      *
+      menu 
+      peg aprates | $null
+
+      arestore # tip Restore data using deconvolution techniques
+      *
+      menu
+      peg arestore infile=$filename | $null
+
+      arfcorr # tip Determine approximate fraction of PSF enclosed by a region
+      *
+      menu
+      peg arfcorr infile=$filename | $null
+
+      asphist # tip Bin the aspect solution into a 3D histogram
+      *
+      menu
+      peg asphist infile=$filename | $null
+
+      axbary # tip Apply barycentric corrections to event times, GTIs, and header values
+      *
+      menu
+      peg axbary infile=$filename | $null
+
+      calquiz # tip Find calibration files in the CALDB
+      *
+      menu
+      peg calquiz infile=$filename | $null
+
+      celldetect # tip Use a "sliding cell" to search for sources
+      *
+      menu
+      peg celldetect infile=$filename
+
+      create_bkg_map # tip Create background map from the event files
+      *
+      menu
+      peg create_bkg_map infile=$filename | $null
+
+      csmooth # tip Adaptively smooth a 2-D image
+      *
+      menu
+      peg csmooth infile=$filename | $null
+   endhmenu
+   hmenu D
+      destreak # tip Remove streak events from ACIS data
+      * 
+      menu 
+      peg destreak infile=$filename | $null
+
+      dither_region # tip Compute fraction of region area that covers chips
+      *
+      menu 
+      peg dither_region infile=$filename | $null
+
+      dmappend # tip Append multiple blocks to an output file
+      * 
+      menu 
+      peg dmappend infile=$filename | $null
+
+      dmarfadd # tip Add multiple ARF files together
+      *
+      menu
+      peg dmarfadd infile=$filename | $null
+
+      dmcontour # tip Make contour regions from a 2-D image
+      *
+      menu 
+      peg dmcontour infile=$filename | $null
+
+      dmcoords # tip Convert between Chandra coordinate systems
+      *  
+      menu  
+      peg dmcoords infile=$filename | $null
+  
+      dmcopy # tip Filter and bin tables and images
+      *  
+      menu  
+      peg dmcopy infile=$filename | $null
+       
+      dmdiff # tip Compare values in two FITS files
+      *  
+      menu  
+      peg dmdiff infile1=$filename | $null
+       
+      dmellipse # tip Finds ellipse for specified fraction
+      *  
+      menu  
+      peg dmellipse infile=$filename | $null
+  
+      dmextract # tip Make a histogram table file from a table column
+      *  
+      menu  
+      peg dmextract infile=$filename | $null
+  
+      dmfilth # tip Replace pixel values in source regions of an image
+      *  
+      menu  
+      peg dmfilth infile=$filename | $null
+
+      dmgroup # tip Group a specified column in a table
+      *  
+      menu  
+      peg dmgroup infile=$filename | $null
+  
+      dmgroupreg # tip Translate ds9 regions and groups to CIAO format
+      *  
+      menu  
+      peg dmgroupreg | $null
+  
+      dmgti # tip Create a Good Time Interval from a constraint expression
+      *  
+      menu  
+      peg dmgti infile=$filename | $null
+  
+      dmhedit # tip Edit datamodel file headers
+      *  
+      menu  
+      peg dmhedit infile=$filename | $null
+  
+      dmhistory # tip Extract history from CIAO tools
+      *  
+      menu  
+      peg dmhistory infile=$filename | $null
+  
+      dmimg2jpg # tip Make a color JPEG from three image files
+      *  
+      menu  
+      peg dmimg2jpg infile=$filename | $null
+  
+      dmimgadapt # tip Adaptively smoothes an image based on number of counts
+      *  
+      menu  
+      peg dmimgadapt infile=$filename | $null
+  
+      dmimgblob # tip Identifies groups of pixels above/below threshold
+      *  
+      menu  
+      peg dmimgblob infile=$filename | $null
+  
+      dmimgcalc # tip Perform arithmetic on images
+      *  
+      menu  
+      peg dmimgcalc infile=$filename | $null
+  
+      dmimgfilt # tip Performs various non-linear image filtering techniques
+      *  
+      menu  
+      peg dmimgfilt infile=$filename | $null
+  
+      dmimghist # tip Make a histogram of values in a 2-D image
+      *  
+      menu  
+      peg dmimghist infile=$filename | $null
+
+      dmimglasso # tip Draw region around point with similar values
+      *  
+      menu  
+      peg dmimglasso infile=$filename | $null
+  
+      dmimgpick # tip Maps image values to rows in a table 
+      *  
+      menu  
+      peg dmimgpick infile=$filename | $null
+
+      dmimgproject # tip Project image along axis
+      *  
+      menu  
+      peg dmimgproject infile=$filename | $null
+
+      dmimgreproject # tip Replicates table value along axis of image
+      *  
+      menu  
+      peg dmimgreproject infile=$filename | $null
+
+      dmimgthresh # tip Set low exposure regions of an image to zero
+      *  
+      menu  
+      peg dmimgthresh infile=$filename | $null
+
+      dmjoin # tip Join two files whose sampling is different 
+      *  
+      menu  
+      peg dmjoin infile=$filename | $null
+
+      dmkeypar # tip Retrieve information about a keyword from an input file
+      *  
+      menu  
+      peg dmkeypar infile=$filename | $null
+  
+      dmlist # tip List contents or structure of a file
+      *
+      menu
+      peg dmlist infile=$filename | $null
+
+      dmmakepar # tip Write header keywords to a parameter file
+      *
+      menu 
+      peg dmmakepar | $null
+
+      dmmakereg  # tip Convert a region string to a CXC FITS region file
+      *
+      menu 
+      peg dmmakereg | $null
+
+      dmmaskbin  # tip Bins an image based on input mask
+      *
+      menu 
+      peg dmmaskbin infile=$filename | $null
+
+      dmmaskfill  # tip Replaces mask values with those found in lookup table
+      *
+      menu 
+      peg dmmaskfill infile=$filename | $null
+
+      dmmerge  # tip Merge two or more compatible tables
+      *
+      menu 
+      peg dmmerge infile=$filename | $null
+
+      dmnautilus  # tip Perform a quad-tree adaptive binning on 2D images
+      *
+      menu 
+      peg dmnautilus infile=$filename | $null
+
+      dmpaste # tip Add new columns to a table
+      *
+      menu 
+      peg dmpaste infile=$filename | $null
+
+      dmreadpar # tip Create header keywords from a parameter file
+      *
+      menu 
+      peg dmreadpar | $null
+
+      dmregrid # tip Rebin a stack of 2-dimensional images
+      *
+      menu 
+      peg dmregrid infile=$filename | $null
+
+      dmsort # tip Sort a table
+      *
+      menu 
+      peg dmsort infile=$filename | $null
+
+      dmstat # tip Compute statistics for 2D images and table columns
+      *
+      menu 
+      peg dmstat infile=$filename | $null
+
+      dmtcalc # tip Define new table columns as functions of old ones
+      *
+      menu 
+      peg dmtcalc infile=$filename | $null
+
+      dmtype2split # tip Create a type 1 PHA file from a type 2 PHA file
+      *
+      menu
+      peg dmtype2split infile=$filename | $null
+   endhmenu
+   hmenu E-Z
+      eff2evt # tip Look up the QE and effective area for an event position 
+      *
+      menu 
+      peg eff2evt infile=$filename | $null
+
+      evalpos # tip Get image values at a specified (RA,DEC)
+      *
+      menu 
+      peg evalpos infile=$filename | $null
+
+      fullgarf # tip Create a grating arf
+      *
+      menu 
+      peg fullgarf infile=$filename | $null
+
+      get_src_region # tip Output regions that have counts higher than background
+      *
+      menu 
+      peg get_src_region infile=$filename | $null
+
+      glvary # tip  Search for variability using Gregory-Loredo algorithm
+      *
+      menu 
+      peg glvary infile=$filename | $null
+
+      hrc_build_badpix # tip Create an observation-specific bad pixel file for HRC
+      *
+      menu 
+      peg hrc_build_badpix infile=$filename | $null
+
+      hrc_dtfstats # tip Calculate statistics from HRC dead time and a GTI
+      *
+      menu 
+      peg hrc_dtfstats infile=$filename | $null
+
+      hrc_process_events # tip Produce/update HRC TIME, coordinates, PI, STATUS
+      *
+      menu
+      peg hrc_process_events infile=$filename | $null
+
+      lim_sens # tip Compute limiting sensitivity map for source detection 
+      *
+      menu 
+      peg lim_sens infile=$filename | $null
+
+      mkacisrmf # tip Generate an RMF for Chandra imaging data
+      *
+      menu 
+      peg mkacisrmf infile=$filename | $null
+
+      mkarf # tip Generate an ARF for Chandra imaging data
+      *
+      menu 
+      peg mkarf | $null
+
+      mkexpmap # tip Generate a Chandra imaging exposure map
+      *
+      menu
+      peg mkexpmap | $null
+
+      mkgarf # tip Generate a Chandra Grating ARF
+      *
+      menu
+      peg mkgarf | $null
+
+      mkgrmf # tip Generate an RMF for Chandra grating data
+      *
+      menu
+      peg mkgrmf | $null
+
+      mkinstmap # tip Generate a Chandra instrument map
+      *
+      menu
+      peg mkinstmap | $null
+ 
+      mkpsf # tip Extract a point spread function from a PSF library
+      *
+      menu
+      peg mkpsf | $null
+
+      mkpsfmap # tip Determine circular radius of PSF at each pixel in image 
+      *
+      menu
+      peg mkpsfmap infile=$filename | $null
+
+      mkrmf # tip Create RMF from an FEF file on a given 2-D grid plane
+      *
+      menu
+      peg mkrmf | $null
+
+      mkwarf # tip Compute the weighted ARF based on an input WMAP
+      *
+      menu 
+      peg mkwarf | $null
+
+      modelflux # tip Calculate model flux or count rate
+      *
+      menu
+      peg modelflux | $null
+
+      pileup_map # tip Compute image that gives indication of pileup
+      *
+      menu
+      peg pileup_map infile=$filename | $null
+
+      psextract # tip Extract source and background ACIS spectra
+      *
+      menu
+      peg psextract | $null
+
+      psf_project_ray # tip Project rays generated by ChaRT onto semi-infinite detector planes
+      *
+      menu
+      peg psf_project_ray | $null
+
+      reproject_aspect # tip Modify aspect to minimize position differences between two source lists
+      *
+      menu 
+      peg reproject_aspect infile=$filename | $null
+
+      reproject_events # tip Regrid event file(s) to a common tangent point
+      *
+      menu
+      peg reproject_events infile=$filename | $null
+
+      reproject_image # tip Map an image in one WCS reference frame to that of another image
+      *
+      menu 
+      peg reproject_image infile=$filename | $null
+
+      reproject_image_grid # tip Map an image in one WCS reference frame to a specified WCS grid
+      *
+      menu 
+      peg reproject_image_grid infile=$filename | $null
+
+      rmfimg # tip Convert an RMF in Legacy format to a simple image
+      *
+      menu
+      peg rmfimg infile=$filename | $null
+
+      sky2tdet # tip Project an image in SKY coordinates to TDET coordinates
+      *
+      menu
+      peg sky2tdet infile=$filename | $null
+
+      skyfov # tip Make a field-of-view region in sky coordinates
+      *
+      menu
+      peg skyfov infile=$filename | $null
+
+      specextract # tip Extended source ACIS spectra and responses
+      *
+      menu
+      peg specextract | $null
+
+      srcextent # tip Determine if a source is extended within a confidence interval
+      *
+      menu
+      peg srcextent | $null
+
+      sso_freeze # tip Reproject sky coordinates into an SSO-centered reference frame 
+      *
+      menu
+      peg sso_freeze infile=$filename | $null
+
+      tg_create_mask # tip Create a region file to define spectrum sky boundaries
+      *
+      menu
+      peg tg_create_mask infile=$filename | $null
+
+      tg_resolve_events # tip Assign grating events to spectral orders
+      * 
+      menu
+      peg tg_resolve_events infile=$filename | $null
+
+      tgdetect # tip Detect and centroid the zero order image in a grating event list
+      * 
+      menu
+      peg tgdetect infile=$filename | $null
+
+      tgextract # tip Extract a grating spectrum from an event list
+      * 
+      menu
+      peg tgextract infile=$filename | $null
+
+      tgextract2 # tip Bin grating wavelength column into 1D counts histogram
+      * 
+      menu
+      peg tgextract2 infile=$filename | $null
+
+      vtpdetect # tip Voronoi Tessellation and Percolation (VTP) source detection
+      *
+      menu
+      peg vtpdetect infile=$filename | $null
+   
+      wavdetect # tip Mexican-Hat Wavelet source detection
+      *
+      menu
+      peg wavdetect infile=$filename | $NULL
+
+      wcs_match # tip Minimize the aspect difference between data from the same sky region
+      *
+      menu 
+      peg wcs_match infile=$filename | $null
+
+      wcs_update # tip Modify aspect solution based on a transformation matrix
+      *
+      menu 
+      peg wcs_update infile=$filename | $null
+   endhmenu
+  endhmenu
+# end "Tools" menu
+
+---
+  
+      dmcopy # tip Filter and bin tables and images
+      *  
+      menu  
+      peg dmcopy infile=$filename | $null
+  
+      dmlist # tip List contents or structure of a file
+      *
+      menu
+      peg dmlist infile=$filename | $null
+       
+      dmextract # tip Make a histogram table file from a table column
+      *  
+      menu  
+      peg dmextract infile=$filename | $null
+
+      dmstat # tip Compute statistics for 2D images and table columns
+      *
+      menu 
+      peg dmstat infile=$filename | $null
+
