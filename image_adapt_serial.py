@@ -13,7 +13,7 @@ IMG = array( original_image_rgb[:,:,0])
 Lx = int32( IMG.shape[0])
 Ly = int32( IMG.shape[1])
 
-print "Processing %d x %d image" % (width, height)
+print "Processing %d x %d image" % (Lx, Ly)
 
 total_start_time = time.time()
 setup_start_time = time.time()
@@ -29,6 +29,9 @@ Threshold = 30.0
 MaxRad = 30.0
 
 # Array to hold updated values
+# This array can be used to implement the weight sums
+# for example gaussian, tophat, cone
+# currently set to one for general use.
 ww = np.ones((Lx, Ly), dtype=np.float64)
 
 setup_stop_time = time.time()
@@ -37,10 +40,10 @@ kernel_start_time = time.time()
 # Begin smoothing kernel
 for xx in range(Lx):
     for yy in range(Ly):
-        qq = 0.0        ##
-        sum = 0.0       ##
-        ksum = 0.0      ##
-        ss = qq         ##
+        qq = 0.0        ## size of box
+        sum = 0.0       ## value of the sum
+        ksum = 0.0      ## value of the kernal sum
+        ss = qq         ## size of the box around source pixel
 
         # Continue until parameters
         while (sum < Threshold) and (qq < MaxRad):
@@ -62,7 +65,7 @@ for xx in range(Lx):
         # Missing mm parameter??
         for ii in xrange( int(-ss), int(ss+1) ):
             for jj in xrange( int(-ss), int(ss+1) ):
-                NORM[xx+mm][yy+nn] += (ww[ii+ss][jj+ss])/ksum
+                NORM[xx+ii][yy+jj] += (ww[ii+ss][jj+ss])/ksum
 #---------------------------------------------------------------
 
 #
@@ -91,7 +94,7 @@ total_stop_time = time.time()
 #---------------------------------------------------------------
 
 # Save the current image. NOT DONE
-imsave('input_small/114_ccd7{0}{1}.jpg'.format('_sharpen', '1'), OUT, cmap=cm.gray, vmin=0, vmax=1)
+imsave('input_small/114_ccd7{0}{1}.jpg'.format('_smooth', '1'), OUT, cmap=cm.gray, vmin=0, vmax=1)
 
 # Print results & save
 print "Total Time: %f"      % (total_stop_time - total_start_time)
