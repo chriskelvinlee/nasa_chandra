@@ -193,46 +193,78 @@ def parallel_smooth(filename, rank, size, comm):
     kernel_start_time = cu.Event()
     kernel_stop_time = cu.Event()
         
-    
+    kernel_start_time.record()
+
+    ## TO DO ##   
+    # I am not really sure if this is how you would run multiple kernels
+    # Need to ensure that the input/output variables are correct to pass to 
+    # the next kernel
+    #########
     
     # Run the CUDA kernel with the appropriate inputs and outputs
     ## TO DO ##   
     # This kernel will utilize the IMG and modify the RAD and NORM
     #########
-    smth_kernel_start_time.record()
     smoothing_kernel(next_im_device, curr_im_device, Lx, Ly, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
-    smth_kernel_stop_time.record()
-    
     # Run the CUDA kernel with the appropriate inputs and outputs
     ## TO DO ##   
     # This kernel will utilize the NORM and modify the IMG
     #########
-    norm_kernel_start_time.record()
     normalize_kernel(next_im_device, curr_im_device, Lx, Ly, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
-    norm_kernel_stop_time.record()
     # Run the CUDA kernel with the appropriate inputs and outputs
     ## TO DO ##   
     # This kernel will utilize the RAD and IMG and modify the OUT
     #########
-    out_kernel_start_time.record()
     out_kernel(next_im_device, curr_im_device, Lx, Ly, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
-    out_kernel_start_time.record()
-
-
+    
+    kernel_stop_time.record()
+    kernel_stop_time.synchronize()
+        
+    # Copy image to host
+    curr_im = curr_im_device.get()
+    
     total_stop_time = time.time()
     imsave('{}_smoothed.png'.format(filename), curr_im, cmap=cm.gray, vmin=0, vmax=1)
     
     # Print results & save
-    total_time      = (total_stop_time - total_start_time)
-    setup_time      = (setup_stop_time - setup_start_time)
-    smth_ker_time   = (smth_kernel_start_time.time_till(smth_kernel_stop_time) * 1e-3)
-    norm_ker_time   = (norm_kernel_start_time.time_till(norm_kernel_stop_time) * 1e-3)
-    out_ker_time    = (out_kernel_start_time.time_till(out_kernel_stop_time) * 1e-3)
+    total_time  = (total_stop_time - total_start_time)
+    setup_time  = (setup_stop_time - setup_start_time)
+    ker_time    = (kernel_start_time.time_till(kernel_stop_time) * 1e-3)
     
-    print "Total Time: %f"                  % total_time
-    print "Setup Time: %f"                  % setup_time
-    print "Kernel (Smooth) Time: %f"        % smth_ker_time
-    print "Kernel (Normalize) Time: %f"     % norm_ker_time
-    print "Kernel (Output) Time: %f"        % out_ker_time
+    results = [total_time, setup_time, ker_time]
+    
+    ### SEND
+    comm.send(results, dest = 0)
 
+########################
+#  BEGINING OF MPI CODE
+########################
+
+# Initialize MPI constants
+comm = MPI.COMM_WORLD
+size = comm.Get_size()
+rank = comm.Get_rank()
+print "Hello from process %d of %d" % (rank,size)
+
+filenames = ['114_ccd7.jpg', '321_ccd7.jpg', '7417_ccd3.jpg', '11759_ccd3.jpg']
+
+# Send filenames as data
+parallel_smooth(filenames[rank], rank, size, comm)
+
+
+# Print rank, mean, variance
+if rank == 0:
+    for k in range(0, size):
+        results = comm.recv(source = k) # Receive data from processes
+        print "***Rank %d***" % k
+        #print results
+        print "Total Time: %f"      % results[0]
+        print "Setup Time: %f"      % results[1]
+        print "Kernel Time: %f"     % results[2]
+        print "\n"
+
+
+########################
+#  END OF MPI CODE
+########################
 

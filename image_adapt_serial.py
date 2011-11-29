@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 # Update img directory to reflect github
-file_name = 'input_small/114_ccd7.jpg'
+file_name = 'input_small/114_ccd7_small.jpg'
 original_image_rgb = imread(file_name)
 
 # Image is black and white so R=B=G
@@ -23,7 +23,9 @@ RAD = np.zeros((Lx, Ly), dtype=np.float64)
 NORM = np.zeros((Lx, Ly), dtype=np.float64)
 OUT = np.zeros((Lx, Ly), dtype=np.float64)
 
-
+# Set parameters
+Threshold   = 10
+MaxRad      = 2
 
 # Array to hold updated values
 # This array can be used to implement the weight sums
