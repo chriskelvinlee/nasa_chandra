@@ -36,7 +36,7 @@ ww = 1.0#np.ones((Lx, Ly), dtype=np.float64)
 setup_stop_time = time.time()
 kernel_start_time = time.time()
 
-# Begin smoothing kernel
+# Smoothing kernel
 for xx in range(Lx):
     for yy in range(Ly):
         qq = 0.0        ## size of box
@@ -62,7 +62,7 @@ for xx in range(Lx):
                         qq = MaxRad
             qq += 1
             
-        # 
+        # Smooth
         RAD[xx][yy] = ss
         
         # Determine the normalization for each box
@@ -72,14 +72,14 @@ for xx in range(Lx):
                     NORM[xx+ii][yy+jj] += 1.0 / ksum #(ww[ii+ss][jj+ss])/ksum
 #---------------------------------------------------------------
 
-# Normalize the image
+# Normalizing kernel
 for xx in range(Lx):
     for yy in range(Ly):
         IMG[xx][yy] /= NORM[xx][yy]
 
 #---------------------------------------------------------------
 
-#
+# Output kernel
 for xx in range(Lx):
     for yy in range(Ly):
         ss = RAD[xx][yy]
@@ -103,7 +103,7 @@ total_stop_time = time.time()
 #---------------------------------------------------------------
 
 # Save the current image. NOT DONE
-imsave('input_small/114_ccd7{0}{1}.png'.format('_smooth', '1'), OUT, cmap=cm.gray, vmin=0, vmax=1)
+imsave('{}_smoothed.png'.format(file_name), OUT, cmap=cm.gray, vmin=0, vmax=1)
 
 # Print results & save
 print "Total Time: %f"      % (total_stop_time - total_start_time)

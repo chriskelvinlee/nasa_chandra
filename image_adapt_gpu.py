@@ -234,5 +234,5 @@ def parallel_smooth(filename, rank, size, comm):
     print "Kernel (Smooth) Time: %f"        % smth_ker_time
     print "Kernel (Normalize) Time: %f"     % norm_ker_time
     print "Kernel (Output) Time: %f"        % out_ker_time
-
-
+    
+    
