@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 # Update img directory to reflect github
-file_name = 'input_small/114_ccd7_small.jpg'
+file_name = 'input_small/114_ccd7.jpg'
 original_image_rgb = imread(file_name)
 
 # Image is black and white so R=B=G
@@ -58,6 +58,7 @@ for xx in range(Lx):
                     if((xx + ss < Lx) and (yy + ss < Ly)):
                         sum += IMG[xx + ii][yy + jj] * 1.0 #ww[ii + ss][jj + ss]
                         ksum += 1.0 #(ww[ii + ss][jj + ss])
+                        NORM[xx+ii][yy+jj] += 1.0 / ksum #(ww[ii+ss][jj+ss])/ksum
                     else:
                         qq = MaxRad
             qq += 1
@@ -66,25 +67,25 @@ for xx in range(Lx):
         RAD[xx][yy] = ss
         
         # Determine the normalization factor for each box
-        for ii in xrange( int(-ss), int(ss+1) ):
-            for jj in xrange( int(-ss), int(ss+1) ):
-                if((xx + ss < Lx) and (yy + ss < Ly)):
+        # for ii in xrange( int(-ss), int(ss+1) ):
+        #    for jj in xrange( int(-ss), int(ss+1) ):
+        #        if((xx + ss < Lx) and (yy + ss < Ly)):
                     # CAN THIS LINE BE MOVED TO LINE 60 AFTER KSUM += 1.0?
                     # THE MULTIPLE FOR LOOPS IS MAKING THE SERIAL VERSION RUN
                     # ESPECIALLY SLOW
-                    NORM[xx+ii][yy+jj] += 1.0 / ksum #(ww[ii+ss][jj+ss])/ksum
+                    # NORM[xx+ii][yy+jj] += 1.0 / ksum #(ww[ii+ss][jj+ss])/ksum
 #---------------------------------------------------------------
 
 # Normalizing kernel
-for xx in range(Lx):
-    for yy in range(Ly):
+##for xx in range(Lx):
+##    for yy in range(Ly):
         IMG[xx][yy] /= NORM[xx][yy]
 
 #---------------------------------------------------------------
 
 # Output kernel
-for xx in range(Lx):
-    for yy in range(Ly):
+##for xx in range(Lx):
+##    for yy in range(Ly):
         ss = RAD[xx][yy]
         sum = 0.0
         ksum = 0.0
