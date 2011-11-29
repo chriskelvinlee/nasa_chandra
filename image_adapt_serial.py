@@ -20,13 +20,10 @@ setup_start_time = time.time()
 
 # Allocate memory
 RAD = np.zeros((Lx, Ly), dtype=np.float64)
-TOTAL = np.zeros((Lx, Ly), dtype=np.float64)
 NORM = np.zeros((Lx, Ly), dtype=np.float64)
 OUT = np.zeros((Lx, Ly), dtype=np.float64)
 
-# Parameters
-Threshold = 30.0
-MaxRad = 30.0
+
 
 # Array to hold updated values
 # This array can be used to implement the weight sums
@@ -65,7 +62,6 @@ for xx in range(Lx):
             
         # 
         RAD[xx][yy] = ss
-        TOTAL[xx][yy] = sum
         
         # Determine the normalization for each box
         for ii in xrange( int(-ss), int(ss+1) ):
