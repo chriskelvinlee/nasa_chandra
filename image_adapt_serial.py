@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 # Update img directory to reflect github
-file_name = 'input_small/114_ccd7_small.jpg'
+file_name = 'input_small/114_ccd7.jpg'
 original_image_rgb = imread(file_name)
 
 # Image is black and white so R=B=G
