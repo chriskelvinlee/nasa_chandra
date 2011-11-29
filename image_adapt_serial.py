@@ -103,7 +103,7 @@ total_stop_time = time.time()
 #---------------------------------------------------------------
 
 # Save the current image. NOT DONE
-imsave('{}_smoothed.png'.format(file_name), OUT, cmap=cm.gray, vmin=0, vmax=1)
+imsave('{}_smoothedgi.png'.format(file_name), OUT, cmap=cm.gray, vmin=0, vmax=1)
 
 # Print results & save
 print "Total Time: %f"      % (total_stop_time - total_start_time)
