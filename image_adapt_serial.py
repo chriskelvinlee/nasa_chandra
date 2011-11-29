@@ -19,9 +19,9 @@ total_start_time = time.time()
 setup_start_time = time.time()
 
 # Allocate memory
-RAD = np.zeros((Lx, Ly), dtype=np.float64)
-NORM = np.zeros((Lx, Ly), dtype=np.float64)
-OUT = np.zeros((Lx, Ly), dtype=np.float64)
+RAD = np.zeros((Lx, Ly), dtype=np.float64)      # ??? Matrix
+NORM = np.zeros((Lx, Ly), dtype=np.float64)     # Normalizing Matrix
+OUT = np.zeros((Lx, Ly), dtype=np.float64)      # Output Matrix
 
 # Set parameters
 Threshold   = 10
@@ -62,13 +62,16 @@ for xx in range(Lx):
                         qq = MaxRad
             qq += 1
             
-        # Smooth
+        # Update value
         RAD[xx][yy] = ss
         
-        # Determine the normalization for each box
+        # Determine the normalization factor for each box
         for ii in xrange( int(-ss), int(ss+1) ):
             for jj in xrange( int(-ss), int(ss+1) ):
                 if((xx + ss < Lx) and (yy + ss < Ly)):
+                    # CAN THIS LINE BE MOVED TO LINE 60 AFTER KSUM += 1.0?
+                    # THE MULTIPLE FOR LOOPS IS MAKING THE SERIAL VERSION RUN
+                    # ESPECIALLY SLOW
                     NORM[xx+ii][yy+jj] += 1.0 / ksum #(ww[ii+ss][jj+ss])/ksum
 #---------------------------------------------------------------
 
@@ -102,8 +105,8 @@ kernel_stop_time = time.time()
 total_stop_time = time.time()
 #---------------------------------------------------------------
 
-# Save the current image. NOT DONE
-imsave('{}_smoothedgi.png'.format(file_name), OUT, cmap=cm.gray, vmin=0, vmax=1)
+# Save the current image.
+imsave('{}_smoothed.png'.format(file_name), OUT, cmap=cm.gray, vmin=0, vmax=1)
 
 # Print results & save
 print "Total Time: %f"      % (total_stop_time - total_start_time)
