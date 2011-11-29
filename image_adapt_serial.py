@@ -90,7 +90,8 @@ for xx in range(Lx):
         sum = 0.0
         ksum = 0.0
 
-        #
+        # IS THERE ANY REAASON WHY THIS LINE CANT BE COMBINED WITH THE ABOVE
+        # FOR LOOP
         for ii in xrange( int(-ss), int(ss+1) ):
             for jj in xrange( int(-ss), int(ss+1) ):
                 if((xx + ss < Lx) and (yy + ss < Ly)):
