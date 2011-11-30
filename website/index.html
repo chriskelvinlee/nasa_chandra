@@ -36,7 +36,7 @@
 	<div id="calloutblock">
 	<img class="calloutfloat" src="img/chandra1.png" width="260" height="89" alt="What's New?" />
 	<h2>Massively Parallel Adaptive Smoothing</h2>
-	<p>The purpose of this application is to... inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.</p>
+	<p>The purpose of this application is to provide an image that preserves small scale features while smoothing larger features over greater area.  In order to speed up the application, the CPU will give way to a GPU and methods of parallel programming. </p>
 	</div>
 </div>
 
@@ -53,13 +53,21 @@
 
 <h2>CIAO &amp; CALDB</h2>
 <br>
-<p>Analytical software and algorithms are thus needed to produce accurate observations of the data. The Chandra X-Ray Observatory provides such software in the form of the &ldquo;Chandra Interactive Analysis of Observations&rdquo; or CIAO. &nbsp;CIAO is a flexible software suite that allows analysis of X-ray data collected from the Chandra Observatory as well as non-X-ray data from other missions. The CSC (Chandra Source Catalog) is a publicly accessible database that has combined data for most of the Chandra mission. One of the tools provided in the suite is called <a href="http://cxc.harvard.edu/ciao/ahelp/dmimgadapt.html">dmimgadapt</a> which we will be using as a basis for our project.</p>
+<p>Analytical software and algorithms are thus needed to produce accurate observations of Chandra observations. The Chandra X-Ray Observatory provides such software in the form of the &ldquo;Chandra Interactive Analysis of Observations&rdquo; or CIAO. &nbsp;CIAO is a flexible software suite that allows analysis of X-ray data collected from the Chandra Observatory as well as non-X-ray data from other missions. The CSC (Chandra Source Catalog) is a publicly accessible database that has combined data for most of the Chandra mission. One of the tools provided in the suite is called <a href="http://cxc.harvard.edu/ciao/ahelp/dmimgadapt.html">dmimgadapt</a> which we will be used as a basis for the project.</p>
 <p>&nbsp;</p>
 <p>Source: <a href="http://cxc.harvard.edu/ciao/index.html">Harvard CXC</a></p>
 <p>&nbsp;</p>
 <h2>Project Goal</h2>
 <br>
-<p>Parallelize the existing method to adaptively smooth an image. The current implementation is a serial algorithm called dmimgadapt().  Each pixel in image is independently smoothed until some threshold is met. This is used to smooth high contrast ratio images: the goal is to apply little smoothing to bright objects and large smoothing to the background; with a need to preserve the total energy (or flux).</p>
+<p>Parallelize the existing method to adaptively smooth an image. The current implementation is a serial algorithm called dmimgadapt().  Each pixel in the image is independently smoothed until a given threshold is met. This is used to smooth high contrast ratio images: the goal is to apply little smoothing to bright objects and large smoothing to the background; with a need to preserve the total energy (or flux).</p>
+<p>&nbsp;</p>
+<h2>Benefits</h2>
+<br>
+<p>The ability to implement the algorithm in parallel would have the ultimate benefit of speedup.  Currently using the serial implementation, smoothing a 1024x1024 algorithm takes roughly 30 minutes (depending on input parameters, hardware).  With a parallel implementation we hope to see dramatic improvement in run time.</p>
+<p>&nbsp;</p>
+<h3>Special Thanks</h3>
+<br>
+<p>Special thanks to Kenny Glotfelty of the Harvard-Smithsonian Center for Astrophysics (kjg [at] head.cfa.harvard.edu) for project idea and initial serial algorithm.</p>
 <p>&nbsp;</p>
 </div>
 
