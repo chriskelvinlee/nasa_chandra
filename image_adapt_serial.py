@@ -3,8 +3,11 @@ import os
 import numpy as np
 import time
 
+total_start_time = time.time()
+setup_start_time = time.time()
+
 # Update img directory to reflect github
-file_name = 'input_small/114_ccd7.jpg'
+file_name = 'input_small/321_ccd7.jpg'
 original_image_rgb = imread(file_name)
 
 # Image is black and white so R=B=G
@@ -14,19 +17,19 @@ IMG = array( original_image_rgb[:,:,0])
 Lx = int32( IMG.shape[0])
 Ly = int32( IMG.shape[1])
 
-print "Processing %d x %d image" % (Lx, Ly)
-
-total_start_time = time.time()
-setup_start_time = time.time()
-
-# Allocate memory
-RAD = np.zeros((Lx, Ly), dtype=np.float64)
-NORM = np.zeros((Lx, Ly), dtype=np.float64)
-OUT = np.zeros((Lx, Ly), dtype=np.float64)
+print "Processing file %s (%d x %d image)" % (file_name, Lx, Ly)
 
 # Set Parameters
-Threshold = 10
-MaxRad = 2
+Threshold = 30
+MaxRad = 3.0
+
+#create a weighted gaussian sum
+gx, gy = mgrid[-MaxRad:MaxRad+1, -MaxRad:MaxRad+1]
+ww = exp(-(gx**2/float(MaxRad)+gy**2/float(MaxRad)))
+
+# Allocate memory
+NORM = np.zeros((Lx, Ly), dtype=np.float64)
+OUT = np.zeros((Lx, Ly), dtype=np.float64)
 
 setup_stop_time = time.time()
 kernel_start_time = time.time()
@@ -34,40 +37,25 @@ kernel_start_time = time.time()
 # Begin smoothing kernel
 for xx in range(Lx):
     for yy in range(Ly):
-        qq = 0.0        # size of box
         sum = 0.0       # value of the sum
         ksum = 0.0      # value of the kernal sum
-        ss = qq         # size of the box around source pixel
-        
-        # Continue until parameters
-        while (sum < Threshold) and (qq < MaxRad):
-            ss = qq
-            sum = 0.0
-            ksum = 0.0
-            
-            #check for boundary condition
-            #else skip to where qq = boundary
-            if((xx + ss < Lx) and (yy + ss < Ly)):
-                # Updated for loops for python
-                for ii in xrange( int(-ss), int(ss+1) ):
-                    for jj in xrange( int(-ss), int(ss+1) ):
-                        sum += IMG[xx + ii][yy + jj]
-                        ksum += 1.0
-            else:
-                qq = MaxRad
-            qq += 1
-            
-        # set the size of the radius for the determined box
-        RAD[xx][yy] = ss
-        
+
+        #check for boundary condition
+        #else skip to where qq = boundary
+        if((xx + MaxRad < Lx) and (yy + MaxRad < Ly)):
+            for ii in xrange( int(-MaxRad), int(MaxRad+1) ):
+                for jj in xrange( int(-MaxRad), int(MaxRad+1) ):
+                    sum += IMG[xx + ii][yy + jj] * ww[ii + MaxRad][jj + MaxRad]
+                    ksum += ww[ii + MaxRad][jj + MaxRad]
+
         # Determine the normalization for each box
         # Norm can't be determined from the above loop because it relies on the
         # total ksum value, if placed above the incorrect ksum value will be
         # divided.
-        for ii in xrange( int(-ss), int(ss+1) ):
-            for jj in xrange( int(-ss), int(ss+1) ):
-                if((xx + ss < Lx) and (yy + ss < Ly)):
-                    NORM[xx+ii][yy+jj] += 1.0 / ksum
+        for ii in xrange( int(-MaxRad), int(MaxRad+1) ):
+            for jj in xrange( int(-MaxRad), int(MaxRad+1) ):
+                if((xx + MaxRad < Lx) and (yy + MaxRad < Ly)):
+                    NORM[xx+ii][yy+jj] += (ww[ii + MaxRad][jj + MaxRad] / ksum)
 #---------------------------------------------------------------
 
 # Normalize the image
@@ -80,16 +68,15 @@ for xx in range(Lx):
 # Output file
 for xx in range(Lx):
     for yy in range(Ly):
-        ss = RAD[xx][yy]
         sum = 0.0
         ksum = 0.0
-
+        
         #
-        for ii in xrange( int(-ss), int(ss+1) ):
-            for jj in xrange( int(-ss), int(ss+1) ):
-                if((xx + ss < Lx) and (yy + ss < Ly)):
-                    sum += IMG[xx+ii][yy+jj]
-                    ksum += 1.0
+        for ii in xrange( int(-MaxRad), int(MaxRad+1) ):
+            for jj in xrange( int(-MaxRad), int(MaxRad+1) ):
+                if((xx + MaxRad < Lx) and (yy + MaxRad < Ly)):
+                    sum += (IMG[xx+ii][yy+jj] * ww[ii + MaxRad][jj + MaxRad])
+                    ksum += ww[ii + MaxRad][jj + MaxRad]
         #check for divide by zero
         if(ksum != 0):
             OUT[xx][yy] = sum / ksum
