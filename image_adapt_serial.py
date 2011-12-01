@@ -34,27 +34,26 @@ OUT = np.zeros((Lx, Ly), dtype=np.float64)
 setup_stop_time = time.time()
 kernel_start_time = time.time()
 
-# Begin smoothing kernel
+# Convolve the image with the gaussian kernel
 for xx in range(Lx):
     for yy in range(Ly):
-        sum = 0.0       # value of the sum
+        #sum = 0.0       # value of the sum
         ksum = 0.0      # value of the kernal sum
 
         #check for boundary condition
-        #else skip to where qq = boundary
         if((xx + MaxRad < Lx) and (yy + MaxRad < Ly)):
             for ii in xrange( int(-MaxRad), int(MaxRad+1) ):
                 for jj in xrange( int(-MaxRad), int(MaxRad+1) ):
-                    sum += IMG[xx + ii][yy + jj] * ww[ii + MaxRad][jj + MaxRad]
+                    #sum += IMG[xx + ii][yy + jj] * ww[ii + MaxRad][jj + MaxRad]
                     ksum += ww[ii + MaxRad][jj + MaxRad]
 
-        # Determine the normalization for each box
+        # Determine the normalization
         # Norm can't be determined from the above loop because it relies on the
         # total ksum value, if placed above the incorrect ksum value will be
         # divided.
-        for ii in xrange( int(-MaxRad), int(MaxRad+1) ):
-            for jj in xrange( int(-MaxRad), int(MaxRad+1) ):
-                if((xx + MaxRad < Lx) and (yy + MaxRad < Ly)):
+        if((xx + MaxRad < Lx) and (yy + MaxRad < Ly)):
+            for ii in xrange( int(-MaxRad), int(MaxRad+1) ):
+                for jj in xrange( int(-MaxRad), int(MaxRad+1) ):
                     NORM[xx+ii][yy+jj] += (ww[ii + MaxRad][jj + MaxRad] / ksum)
 #---------------------------------------------------------------
 
@@ -65,16 +64,16 @@ for xx in range(Lx):
         
 #---------------------------------------------------------------
 
-# Output file
+# Output file will be smoothed with the normalized IMG
 for xx in range(Lx):
     for yy in range(Ly):
         sum = 0.0
         ksum = 0.0
         
         #
-        for ii in xrange( int(-MaxRad), int(MaxRad+1) ):
-            for jj in xrange( int(-MaxRad), int(MaxRad+1) ):
-                if((xx + MaxRad < Lx) and (yy + MaxRad < Ly)):
+        if((xx + MaxRad < Lx) and (yy + MaxRad < Ly)):
+            for ii in xrange( int(-MaxRad), int(MaxRad+1) ):
+                for jj in xrange( int(-MaxRad), int(MaxRad+1) ):
                     sum += (IMG[xx+ii][yy+jj] * ww[ii + MaxRad][jj + MaxRad])
                     ksum += ww[ii + MaxRad][jj + MaxRad]
         #check for divide by zero
