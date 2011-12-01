@@ -7,11 +7,12 @@ total_start_time = time.time()
 setup_start_time = time.time()
 
 # Update img directory to reflect github
-file_name = 'input_small/321_ccd7.jpg'
+file_name = 'input_small/321_ccd7.png'
 original_image_rgb = imread(file_name)
 
 # Image is black and white so R=B=G
 IMG = array( original_image_rgb[:,:,0])
+()
 
 # Get image data
 Lx = int32( IMG.shape[0])
@@ -47,7 +48,7 @@ for xx in range(Lx):
                     #sum += IMG[xx + ii][yy + jj] * ww[ii + MaxRad][jj + MaxRad]
                     ksum += ww[ii + MaxRad][jj + MaxRad]
 
-        # Determine the normalization
+        # Determine the normalizat for each boxion
         # Norm can't be determined from the above loop because it relies on the
         # total ksum value, if placed above the incorrect ksum value will be
         # divided.
@@ -70,7 +71,6 @@ for xx in range(Lx):
         sum = 0.0
         ksum = 0.0
         
-        #
         if((xx + MaxRad < Lx) and (yy + MaxRad < Ly)):
             for ii in xrange( int(-MaxRad), int(MaxRad+1) ):
                 for jj in xrange( int(-MaxRad), int(MaxRad+1) ):
