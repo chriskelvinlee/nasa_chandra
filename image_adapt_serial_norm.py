@@ -97,13 +97,20 @@ for xx in range(Lx):
             OUT[xx][yy] = 0
 
 
-
 kernel_stop_time = time.time()
 total_stop_time = time.time()
 #---------------------------------------------------------------
 
 # Save the current image.
 imsave('{}_serial_smoothed_serial.png'.format(os.path.splitext(file_name)[0]), OUT, cmap=cm.gray, vmin=0, vmax=1)
+
+# Debug
+f = open('debug.txt', 'w')
+print >>f,'IMG'
+print >>f, str(IMG).replace('[',' ').replace(']', ' ')
+print >>f,'NORM'
+print >>f, str(NORM).replace('[',' ').replace(']', ' ')
+f.close()
 
 # Print results & save
 print "Total Time: %f"      % (total_stop_time - total_start_time)
