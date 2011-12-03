@@ -34,7 +34,7 @@ kernel_start_time = time.time()
 # Begin smoothing kernel
 for xx in range(Lx):
     for yy in range(Ly):
-        qq = 0.0        # size of box
+        qq = 1.0        # size of box
         sum = 0.0       # value of the sum
         ksum = 0.0      # value of the kernal sum
         ss = qq         # size of the box around source pixel
@@ -46,14 +46,6 @@ for xx in range(Lx):
             ksum = 0.0
             
             #check for boundary condition
-            #else skip to where qq = boundary
-            ## I BELIEVE THIS THE LINE BELOW MAY BE INCORRECT. IT ONLY CHECKS THE
-            ## RIGHT-END AND BOTTOM-END OF THE IMAGE. IT FORGETS TO CHECK THE
-            ## LEFT-END AND TOP-END IS TEH BOX GRID EXCEEDS BOUDND LIMITS. MAY
-            ## BE WRONG FOR LINE 73 AS WELL.
-            ## LOOK AT C VERSION IN GPU:
-            ## if ( i > 0 && i < Ly && j > 0 && j < Lx )
-            # Updated for loops for python
             for ii in xrange( int(-ss), int(ss+1) ):
                 for jj in xrange( int(-ss), int(ss+1) ):
                     if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):                        
