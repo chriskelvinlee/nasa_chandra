@@ -36,11 +36,9 @@ Ly = np.int32( IMG.shape[1] )
 # size of the box needed to reach the threshold value or maxrad value
 BOX = array( IMG )
 # normalized array
-# NORM = array( IMG )
 NORM = np.zeros((Lx, Ly), dtype=np.float32)
 # output array
 OUT = np.zeros((Lx, Ly), dtype=np.float32)
-#OUT = array( IMG )
 
 # Execution configuration
 TPBx	= int( 32 )                # Sweet spot num of threads per block
@@ -87,12 +85,6 @@ kernel_smooth_source = \
 	        sum = 0.0;
 	        ksum = 0.0;
 	        
-	        // create a weighted gaussian sum
-	        // TO DO
-	        
-	        // USE GLOBAL MEMORY FOR NOW UNTIL WE CAN DEBUG
-	        // WHY THE NORM IS NOT MATCHING UP WITH SERIAL
-	        
             // Normal adaptive smoothing (w/o gaussian sum)
             for (int ii = -ss; ii < ss+1; ii++)
             {
@@ -100,8 +92,18 @@ kernel_smooth_source = \
                 {
                     if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
                     {
-                        sum += IMG[gtid + ii*Ly + jj];
-                        ksum += 1.0;                   
+                         // Compute within bounds of block dimensions
+                        if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+                        {
+                            sum += s_IMG[gtid + ii*blockDim.y + jj];
+                            ksum += 1.0;          
+                        }
+                        // Compute block borders with global memory
+                        else
+                        {
+                            sum += IMG[gtid + ii*Ly + jj];
+                            ksum += 1.0;                   
+                        }                                     
                     }
                 }
             }
@@ -152,9 +154,16 @@ kernel_norm_source = \
     // Compute all pixels except for image border
 	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
 	{
-        //perform calculations
-        IMG[gtid] /= NORM[gtid];
-
+        // Compute within bounds of block dimensions
+        if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+        {
+            IMG[gtid] /= s_NORM[stid];
+        }
+        // Compute block borders with global memory
+        else
+        {
+            IMG[gtid] /= NORM[gtid];
+        }
 	}
 	__syncthreads();
     }
@@ -194,8 +203,18 @@ kernel_out_source = \
             {
             if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
                 {
-                    sum += IMG[gtid + ii*Ly + jj];
-                    ksum += 1.0;
+                     // Compute within bounds of block dimensions
+                    if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+                    {
+                        sum += s_IMG[gtid + ii*blockDim.y + jj];
+                        ksum += 1.0;          
+                    }
+                    // Compute block borders with global memory
+                    else
+                    {
+                        sum += IMG[gtid + ii*Ly + jj];
+                        ksum += 1.0;                   
+                    }
                 }
             }
         }
