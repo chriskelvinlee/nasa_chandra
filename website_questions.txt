@@ -1,11 +1,34 @@
 1.  What is the problem you are trying to solve with this application?
-	A full resolution image file of a typical Chandra observation using the ACIS instrument is 8192x8192 pixels.  Due to time constraints and calculation complexities of algorithms that analyze the data, sometimes concessions need to be made.  For example, CIAO provides a routine, dmimgadapt() (http://goo.gl/qWBqe), that takes an image as input then adaptively smooths the image.  It does this by building a 2D box around each pixel until a user defined threshold is met, or a user defined max box size is encountered.  The complexity of the algorithm in worst case scenario is O(n^4).  So with a large image, it can take days to achieve the output image.  So the data is usually scaled, or binned, by a factor of 8 in order to obtain a more manageable image size of 1024x1024.  However, by doing so some of the finer detail of the image is lost.  With this configuration, a typical file may take 30 minutes to produce an output file.  
-	The goal of the project is to modify the dmimgadapt() routine from C-code to a more general python implementation.  Then we will implement a GPU version of the algorithm.  When finished, we want to drastically improve the runtime of the algorithm, via the GPU, and test the ability to run the algorithm on a full resolution 8192x8192 image.
-		
+	A full resolution image file of a typical Chandra observation using the
+	ACIS instrument is 8192x8192 pixels.  Due to time constraints and
+	calculation complexities of algorithms that analyze the data, sometimes
+	concessions need to be made.  For example, CIAO provides a routine,
+	dmimgadapt() (http://goo.gl/qWBqe), that takes an image as input then
+	adaptively smooths the image.  It does this by building a 2D box around
+	each pixel until a user defined threshold is met, or a user defined max
+	box size is encountered.  The complexity of the algorithm in worst case
+	scenario is O(n^4).  So with a large image, it can take days to achieve
+	the output image.  So the data is usually scaled, or binned, by a factor
+	of 8 in order to obtain a more manageable image size of 1024x1024.
+	However, by doing so some of the finer detail of the image is lost.
+	With this configuration, a typical file may take 30 minutes to produce
+	an output file.  The goal of the project is to modify the dmimgadapt()
+	routine from C-code to a more general python implementation.  Then we
+	will implement a GPU version of the algorithm.  When finished, we want
+	to drastically improve the runtime of the algorithm, via the GPU, and
+	test the ability to run the algorithm on a full resolution 8192x8192
+	image.
 
-2.  Describe your data in detail: where did it come from, how did you acquire it, what does it mean, etc.
-	The data we are using comes from the publicly available observations of the Chandra X-Ray Observatory (http://goo.gl/p6W6v).  Data collected from the observatory is considered proprietary for up to one year, then the data becomes public.  One of the main methods to access the data is through the Chandra Data Archive (http://goo.gl/BYn5i).  In our project we used the following Chandra Observations, denoted by Obs ID (Observation Identification Number):
-	a. OBSID 114
+
+2.  Describe your data in detail: where did it come from, how did you acquire
+it, what does it mean, etc.
+	The data we are using comes from the publicly available observations of
+	the Chandra X-Ray Observatory (http://goo.gl/p6W6v).  Data collected
+	from the observatory is considered proprietary for up to one year, then
+	the data becomes public.  One of the main methods to access the data is
+	through the Chandra Data Archive (http://goo.gl/BYn5i).  In our project
+	we used the following Chandra Observations, denoted by Obs ID
+	(Observation Identification Number): a. OBSID 114
 		Object: CAS A (http://goo.gl/ZVBkC)
 	b. OBSID 7417
 		Object: Cluster in NGC 2071
@@ -15,35 +38,67 @@
 		Object: J0417.5-1154 (Strong lensing cluster)
 
 Obtaining The Data
-	On the Chandra Data Archive website (http://goo.gl/ZVBkC) I used the OBSID of the above observations in the "Observation ID" field.  Then hit search.  This brings up the matching observations.  I then clicked the "Primary Products" radio button and then "Add to Retrieval List".  I then selected "Retrieve Products".  I then entered my email address to be notified when the observation data was available.  When the email arrived I followed the instructions on using anonymous ftp and the directory location of the data to retrieve the files.  Once I had the files I uncompressed the file resulting in a directory with the Obs ID and a "primary" subdirectory.  The data files we want are in the "primary" directory.  For our project we used the files ending with evt2.fits.  These are the primary event data that have gone through two levels of automated pipeline processing.  This file contains all of the information regarding the data collected by ACIS that we used to create our input images.  
+	On the Chandra Data Archive website (http://goo.gl/ZVBkC) I used the
+	OBSID of the above observations in the "Observation ID" field.  Then hit
+	search.  This brings up the matching observations.  I then clicked the
+	"Primary Products" radio button and then "Add to Retrieval List".  I
+	then selected "Retrieve Products".  I then entered my email address to
+	be notified when the observation data was available.  When the email
+	arrived I followed the instructions on using anonymous ftp and the
+	directory location of the data to retrieve the files.  Once I had the
+	files I uncompressed the file resulting in a directory with the Obs ID
+	and a "primary" subdirectory.  The data files we want are in the
+	"primary" directory.  For our project we used the files ending with
+	evt2.fits.  These are the primary event data that have gone through two
+	levels of automated pipeline processing.  This file contains all of the
+	information regarding the data collected by ACIS that we used to create
+	our input images.
 
 Preparing The Data
-	In order to prepare the data, tools from the CIAO software suite were used.  In order to install the software visit the CIAO website (http://goo.gl/dsE5M).  The website gives detailed directions for downloading and installing the software.  
-	Steps for Obs ID 321:
-		1.  We wanted to convert the evt2.fits file into separate files for each ccd and bin the data by 8 using the dmimg2jpg and dmkeypar tools from CIAO to determine which ccds were turned on during the observation:
-		(http://goo.gl/V4POS)
+	In order to prepare the data, tools from the CIAO software suite were
+	used.  In order to install the software visit the CIAO website
+	(http://goo.gl/dsE5M).  The website gives detailed directions for
+	downloading and installing the software.  Steps for Obs ID 321:
+		1.  We wanted to convert the evt2.fits file into separate files
+		for each ccd and bin the data by 8 using the dmimg2jpg and
+		dmkeypar tools from CIAO to determine which ccds were turned on
+		during the observation: (http://goo.gl/V4POS)
 		(http://goo.gl/x25ZH)
-		
-		%: dmkeypar "acisf00321N003_evt2.fits.gz" DETNAM echo+ 
-		%: ACIS-235678
-		%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=2][bin sky=::8]" out=321_ccd2.jpg scalefun=log mode=h clob+
-		%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=3][bin sky=::8]" out=321_ccd3.jpg scalefun=log mode=h clob+
-		%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=5][bin sky=::8]" out=321_ccd5.jpg scalefun=log mode=h clob+
-		%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=6][bin sky=::8]" out=321_ccd6.jpg scalefun=log mode=h clob+
-		%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=7][bin sky=::8]" out=321_ccd7.jpg scalefun=log mode=h clob+
-		%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=8][bin sky=::8]" out=321_ccd8.jpg scalefun=log mode=h clob+
-		
+
+		%: dmkeypar "acisf00321N003_evt2.fits.gz" DETNAM echo+ %:
+		ACIS-235678 %: dmimg2jpg
+		"acisf00321N003_evt2.fits.gz[ccd_id=2][bin sky=::8]"
+		out=321_ccd2.jpg scalefun=log mode=h clob+ %: dmimg2jpg
+		"acisf00321N003_evt2.fits.gz[ccd_id=3][bin sky=::8]"
+		out=321_ccd3.jpg scalefun=log mode=h clob+ %: dmimg2jpg
+		"acisf00321N003_evt2.fits.gz[ccd_id=5][bin sky=::8]"
+		out=321_ccd5.jpg scalefun=log mode=h clob+ %: dmimg2jpg
+		"acisf00321N003_evt2.fits.gz[ccd_id=6][bin sky=::8]"
+		out=321_ccd6.jpg scalefun=log mode=h clob+ %: dmimg2jpg
+		"acisf00321N003_evt2.fits.gz[ccd_id=7][bin sky=::8]"
+		out=321_ccd7.jpg scalefun=log mode=h clob+ %: dmimg2jpg
+		"acisf00321N003_evt2.fits.gz[ccd_id=8][bin sky=::8]"
+		out=321_ccd8.jpg scalefun=log mode=h clob+
+
 		2.  I repeated the conversion for all four of our test Obs IDs.
-		3.  Once I had a directory full of jpg images of all of the ccds for each of the observations I did a batch convert to turn them in png files.  I did this using the MAC OS tool Automator (http://goo.gl/pGeFB) to do the batch convert. This png images then became our input images for our python scripts.
+		3.  Once I had a directory full of jpg images of all of the ccds
+		for each of the observations I did a batch convert to turn them
+		in png files.  I did this using the MAC OS tool Automator
+		(http://goo.gl/pGeFB) to do the batch convert. This png images
+		then became our input images for our python scripts.
 
 3.  Describe your program design and why you chose the features you did.
 
-4.  How do you use your application (mouse and keyboard functions, input/output, etc)?
+4.  How do you use your application (mouse and keyboard functions, input/output,
+etc)?
 
-5.  What is the performance of your code? What speedup and efficiency did you achieve? What optimizations did you implement to achieve this speedup?
+5.  What is the performance of your code? What speedup and efficiency did you
+achieve? What optimizations did you implement to achieve this speedup?
 
 6.  What interesting insights did you gain from this project?
 
 7.  What extensions and improvements can you suggest?
 
-8.  What did you most enjoy about working on this project? What was the most challenging aspect? What was the most frustrating? What would you do differently next time?
+8.  What did you most enjoy about working on this project? What was the most
+challenging aspect? What was the most frustrating? What would you do differently
+next time?
