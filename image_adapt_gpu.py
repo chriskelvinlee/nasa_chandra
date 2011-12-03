@@ -76,7 +76,7 @@ kernel_smooth_source = \
     __syncthreads();
     
     // Compute all pixels except for image border
-	if ( i > 0 && i < Ly && j > 0 && j < Lx )
+	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
 	{
 	    // Continue until parameters are met
 	    while (sum < Threshold && qq < MaxRad)
@@ -96,8 +96,11 @@ kernel_smooth_source = \
             {
                 for (int jj = -ss; jj < ss+1; jj++)
                 {
-                    sum += IMG[gtid + ii*Ly + jj];
-                    ksum += 1.0;
+                    if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly))
+                    {
+                        sum += IMG[gtid + ii*Ly + jj];
+                        ksum += 1.0;                   
+                    }
                 }
             }
         
@@ -111,7 +114,10 @@ kernel_smooth_source = \
     {
         for (int jj = -ss; jj < ss+1; jj++)
         {
-            NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
+            if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly))
+            {
+                NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
+            }
 
         }
     }
@@ -119,7 +125,7 @@ kernel_smooth_source = \
 	__syncthreads();
 
     }
-    """
+    """    
 #kernel for the second part of the algorithm that normalizes the data
 ## TO DO ##   
 # Implement The kernel
@@ -217,8 +223,8 @@ kernel_out_source = \
 
 # Initialize kernel
 smoothing_kernel = nvcc.SourceModule(kernel_smooth_source).get_function("smoothingFilter")
-normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
-out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
+# normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
+# out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
 
 total_start_time = time.time()
 setup_start_time = time.time()
@@ -263,8 +269,8 @@ smth_kernel_stop_time.record()
 # BOX = BOX_device.get()
 
 norm_kernel_start_time.record()
-normalize_kernel(Lx, Ly, IMG_device, NORM_device,
-    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+#normalize_kernel(Lx, Ly, IMG_device, NORM_device,
+#    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 norm_kernel_stop_time.record()
 
 # Copy image to host and send to output kernel
@@ -276,8 +282,8 @@ norm_kernel_stop_time.record()
 # This kernel will utilize the BOX and IMG_norm and modify the OUT
 ##########
 out_kernel_start_time.record()
-out_kernel(Lx, Ly, IMG_device, BOX_device, OUT_device,
-    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+#out_kernel(Lx, Ly, IMG_device, BOX_device, OUT_device,
+#    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 out_kernel_stop_time.record()
 
 # Copy image to host and 

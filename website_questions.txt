@@ -7,8 +7,8 @@
 	adaptively smooths the image.  It does this by building a 2D box around
 	each pixel until a user defined threshold is met, or a user defined max
 	box size is encountered.  The complexity of the algorithm in worst case
-	scenario is O(n^4).  So with a large image, it can take days to achieve
-	the output image.  So the data is usually scaled, or binned, by a factor
+	scenario is O(n^4).  Thus, with a large image, it can take days to achieve
+	the output image. The data is usually scaled, or binned, by a factor
 	of 8 in order to obtain a more manageable image size of 1024x1024.
 	However, by doing so some of the finer detail of the image is lost.
 	With this configuration, a typical file may take 30 minutes to produce
@@ -38,15 +38,15 @@ it, what does it mean, etc.
 		Object: J0417.5-1154 (Strong lensing cluster)
 
 Obtaining The Data
-	On the Chandra Data Archive website (http://goo.gl/ZVBkC) I used the
+	On the Chandra Data Archive website (http://goo.gl/ZVBkC) we used the
 	OBSID of the above observations in the "Observation ID" field.  Then hit
-	search.  This brings up the matching observations.  I then clicked the
-	"Primary Products" radio button and then "Add to Retrieval List".  I
-	then selected "Retrieve Products".  I then entered my email address to
+	search.  This brings up the matching observations.  We then clicked the
+	"Primary Products" radio button and then "Add to Retrieval List".  We
+	then selected "Retrieve Products".  We then entered my email address to
 	be notified when the observation data was available.  When the email
-	arrived I followed the instructions on using anonymous ftp and the
+	arrived we followed the instructions on using anonymous ftp and the
 	directory location of the data to retrieve the files.  Once I had the
-	files I uncompressed the file resulting in a directory with the Obs ID
+	files we uncompressed the file resulting in a directory with the Obs ID
 	and a "primary" subdirectory.  The data files we want are in the
 	"primary" directory.  For our project we used the files ending with
 	evt2.fits.  These are the primary event data that have gone through two
@@ -81,14 +81,29 @@ Preparing The Data
 	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=8][bin sky=::8]"
 		out=321_ccd8.jpg scalefun=log mode=h clob+
 
-	2.  I repeated the conversion for all four of our test Obs IDs.  
-	3.  Once I had a directory full of jpg images of all of the ccds for each of
-	the observations I did a batch convert to turn them in png files.  I did
+	2.  We repeated the conversion for all four of our test Obs IDs.  
+	3.  Once we had a directory full of jpg images of all of the ccds for each of
+	the observations I did a batch convert to turn them in png files.  We did
 	this using the MAC OS tool Automator (http://goo.gl/pGeFB) to do the
 	batch convert. These png images then became our input images for our
 	python scripts.
 
 3.  Describe your program design and why you chose the features you did.
+
+    Executive Summary:
+    
+    0. Preprocessing Data
+    1. Re-implementing serial version from C into Python
+        We had to have 3 for-loop kernels to match CIAO source code. The Gaussian
+        weights were relatively easy to implement in python in lines x and y
+        of 'image_adapt_serial_gaussian.py.'
+    2. Implementing GPU version
+        
+        a. Implemented 3 kernels, minimized CPU to GPU read/writes but having all
+            kernels access the same global memory and calculate using shared memory
+        b. Gaussian is very difficult to implement and has been deferred
+        c. 
+
 
 4.  How do you use your application (mouse and keyboard functions, input/output,
 etc)?
