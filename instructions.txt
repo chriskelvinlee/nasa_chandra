@@ -2,20 +2,8 @@ No module named pycuda.autoinit
 module load packages/pycuda/2011.1.2
 
 
-    // Compute all pixels except for image border
-	if ( i > 0 && i < Ly-1 && j > 0 && j < Lx-1 )
-	{
-        // Compute within bounds of block dimensions
-        if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
-        {
-            //perform calculations here
-            OUT[gtid] = s_IMG[stid];
-        }
-        // Compute block borders with global memory
-        else
-        {
-            //perform calculations
-            OUT[gtid] = IMG[gtid];
-        }
-	}
-	__syncthreads();
+Example Gaussian Sum
+>>> ww
+array([[ 0.13533528,  0.36787944,  0.13533528],
+       [ 0.36787944,  1.        ,  0.36787944],
+       [ 0.13533528,  0.36787944,  0.13533528]])

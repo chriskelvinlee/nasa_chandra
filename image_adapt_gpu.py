@@ -20,8 +20,9 @@ except:
 """
 
 file_name   = 'png_input/114_ccd7_small.png'
-MaxRad      = float(2)
-Threshold   = float(10)
+Threshold   = np.int32(10)
+MaxRad      = np.int32(2)
+
 
 # setup input file
 IMG_rgb = imread(file_name)
@@ -33,14 +34,11 @@ Ly = np.int32( IMG.shape[1] )
 
 # Allocate memory
 # size of the box needed to reach the threshold value or maxrad value
-#BOX = np.zeros((Lx, Ly), dtype=np.float64) 
-BOX = array(IMG)
+BOX = array( IMG )
 # normalized array
-# NORM = np.zeros((Lx, Ly), dtype=np.float64)
-NORM = array(IMG)
+NORM = array( IMG )
 # output array
-# OUT = np.zeros((Lx, Ly), dtype=np.float64)
-OUT = array(IMG)
+OUT = array( IMG )
 
 # Execution configuration
 TPBx	= int( 32 )                # Sweet spot num of threads per block
@@ -55,7 +53,8 @@ nBy     = int( Lx/TPBy )
 #########
 kernel_smooth_source = \
 """
-    __global__ void smoothingFilter(int Lx, int Ly, float* IMG, float* BOX, float* NORM, float* OUT)
+    __global__ void smoothingFilter(int Lx, int Ly, int Threshold, int MaxRad, 
+        float* IMG, float* BOX, float* NORM, float* OUT)
     {
     // Indexing
     int tid = threadIdx.x;
@@ -64,12 +63,72 @@ kernel_smooth_source = \
     int j = blockIdx.y * blockDim.y + tjd;
     int stid = tjd * blockDim.x + tid;
     int gtid = j * Ly + i;  
+    
+    // Smoothing params
+    float qq    = 1.0;
+    float sum   = 0.0;
+    float ksum  = 0.0;
+    float ss    = qq;
 
+    // Shared memory
     extern __shared__ float s_IMG[];
     s_IMG[stid] = IMG[gtid];
     __syncthreads();
-
-    OUT[gtid] = IMG[gtid];
+    
+    // Compute all pixels except for image border
+	if ( i > 0 && i < Ly-1 && j > 0 && j < Lx-1 )
+	{
+	    // Continue until parameters are met
+	    while (sum < Threshold && qq < MaxRad)
+	    {
+	        ss = qq;
+	        sum = 0.0;
+	        ksum = 0.0;
+	        
+	        // create a weighted gaussian sum
+	        // TO DO
+	        
+            // Compute within bounds of block dimensions
+            if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+            {
+                // Normal adaptive smoothing (w/o gaussian sum)
+                for (int ii = -ss; ii < ss+1; ii++)
+                {
+                    for (int jj = -ss; jj < ss+1; jj++)
+                    {
+                        sum += s_IMG[stid + ii + jj];
+                        ksum += 1.0;
+                    }
+                }
+            }
+            // Compute block borders with global memory
+            else
+            {
+                // Normal adaptive smoothing (w/o gaussian sum)
+                for (int ii = -ss; ii < ss+1; ii++)
+                {
+                    for (int jj = -ss; jj < ss+1; jj++)
+                    {
+                        sum += IMG[gtid + ii + jj];
+                        ksum += 1.0;
+                    }
+                }
+            }
+            qq += 1;
+        }
+        BOX[gtid] = ss;
+        __syncthreads();
+    
+    // Determine the normalization for each box
+    for (int ii = -ss; ii < ss+1; ii++)
+    {
+        for (int jj = -ss; jj < ss+1; jj++)
+        {
+            NORM[gtid + ii + jj] += 1.0 / ksum;
+        }
+    }
+	}
+	__syncthreads();
 
     }
     """
@@ -197,7 +256,8 @@ out_kernel_stop_time     = cu.Event()
 ##########
 
 smth_kernel_start_time.record()
-smoothing_kernel(Lx, Ly, IMG_device, BOX_device, NORM_device, OUT_device, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+smoothing_kernel(Lx, Ly, Threshold, MaxRad, IMG_device, BOX_device, NORM_device, OUT_device,
+    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 smth_kernel_stop_time.record()
 
 ##########
@@ -211,7 +271,7 @@ smth_kernel_stop_time.record()
 # BOX = BOX_device.get()
 
 norm_kernel_start_time.record()
-# normalize_kernel(Lx, Ly, IMG_device, NORM_device, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+# normalize_kernel(Lx, Ly, IMG_device, NORM_device,block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 norm_kernel_stop_time.record()
 
 # Copy image to host and send to output kernel
