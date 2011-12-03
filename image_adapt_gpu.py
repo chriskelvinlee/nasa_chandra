@@ -36,9 +36,11 @@ Ly = np.int32( IMG.shape[1] )
 # size of the box needed to reach the threshold value or maxrad value
 BOX = array( IMG )
 # normalized array
-NORM = array( IMG )
+# NORM = array( IMG )
+NORM = np.zeros((Lx, Ly), dtype=np.float32)
 # output array
-OUT = array( IMG )
+OUT = np.zeros((Lx, Ly), dtype=np.float32)
+#OUT = array( IMG )
 
 # Execution configuration
 TPBx	= int( 32 )                # Sweet spot num of threads per block
@@ -96,29 +98,27 @@ kernel_smooth_source = \
             {
                 for (int jj = -ss; jj < ss+1; jj++)
                 {
-                    if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly))
+                    if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
                     {
                         sum += IMG[gtid + ii*Ly + jj];
                         ksum += 1.0;                   
                     }
                 }
             }
-        
             qq += 1;
         }
         BOX[gtid] = ss;
         __syncthreads();
-    
+
         // Determine the normalization for each box
         for (int ii = -ss; ii < ss+1; ii++)
         {
             for (int jj = -ss; jj < ss+1; jj++)
             {
-                if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly))
+                if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
                 {
                     NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
                 }
-
             }
         }
 	}

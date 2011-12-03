@@ -34,7 +34,7 @@ kernel_start_time = time.time()
 # Begin smoothing kernel
 for xx in range(Lx):
     for yy in range(Ly):
-        qq = 0.0        # size of box
+        qq = 1.0        # size of box
         sum = 0.0       # value of the sum
         ksum = 0.0      # value of the kernal sum
         ss = qq         # size of the box around source pixel
@@ -63,7 +63,7 @@ for xx in range(Lx):
             
         # set the size of the radius for the determined box
         RAD[xx][yy] = ss
-        
+
         # Determine the normalization for each box
         # Norm can't be determined from the above loop because it relies on the
         # total ksum value, if placed above the incorrect ksum value will be
