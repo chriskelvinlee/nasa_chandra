@@ -47,6 +47,12 @@ for xx in range(Lx):
             
             #check for boundary condition
             #else skip to where qq = boundary
+            ## I BELIEVE THIS THE LINE BELOW MAY BE INCORRECT. IT ONLY CHECKS THE
+            ## RIGHT-END AND BOTTOM-END OF THE IMAGE. IT FORGETS TO CHECK THE
+            ## LEFT-END AND TOP-END IS TEH BOX GRID EXCEEDS BOUDND LIMITS. MAY
+            ## BE WRONG FOR LINE 73 AS WELL.
+            ## LOOK AT C VERSION IN GPU:
+            ## if ( i > 0 && i < Ly && j > 0 && j < Lx )
             if((xx + ss < Lx) and (yy + ss < Ly)):
                 # Updated for loops for python
                 for ii in xrange( int(-ss), int(ss+1) ):
