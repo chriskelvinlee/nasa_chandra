@@ -150,20 +150,11 @@ kernel_norm_source = \
     __syncthreads();    
 
     // Compute all pixels except for image border
-	if ( i > 0 && i < Ly && j > 0 && j < Lx )
+	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
 	{
-        // Compute within bounds of block dimensions
-        if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
-        {
-            //perform calculations here
-            IMG[gtid] = s_IMG[stid] / s_NORM[stid];
-        }
-        // Compute block borders with global memory
-        else
-        {
-            //perform calculations
-            IMG[gtid] = IMG[gtid] / NORM[gtid];
-        }
+        //perform calculations
+        IMG[gtid] /= NORM[gtid];
+
 	}
 	__syncthreads();
     }
@@ -190,41 +181,42 @@ kernel_out_source = \
     float sum   = 0.0;
     float ksum  = 0.0;
 
-
-    extern __shared__ float s_IMG_norm[];
+    extern __shared__ float s_IMG[];
     s_IMG[stid] = IMG[gtid];
     __syncthreads();
 
     // Compute all pixels except for image border
-	if ( i > 0 && i < Ly && j > 0 && j < Lx )
+	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
 	{
         for (int ii = -ss; ii < ss+1; ii++)
         {
             for (int jj = -ss; jj < ss+1; jj++)
             {
-                sum += IMG[gtid + ii*Ly + jj];
-                ksum += 1.0;
+            if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
+                {
+                    sum += IMG[gtid + ii*Ly + jj];
+                    ksum += 1.0;
+                }
             }
         }
 	}
-	
-    #check for divide by zero
-    if (ksum != 0)
+	__syncthreads();    
+    if ( ksum != 0 )
     {
         OUT[gtid] = sum / ksum;
     }
     else
     {
         OUT[gtid] = 0;
-	}
+    }
 	__syncthreads();
     }
 """
 
 # Initialize kernel
 smoothing_kernel = nvcc.SourceModule(kernel_smooth_source).get_function("smoothingFilter")
-# normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
-# out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
+normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
+out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
 
 total_start_time = time.time()
 setup_start_time = time.time()
@@ -269,8 +261,8 @@ smth_kernel_stop_time.record()
 # BOX = BOX_device.get()
 
 norm_kernel_start_time.record()
-#normalize_kernel(Lx, Ly, IMG_device, NORM_device,
-#    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+normalize_kernel(Lx, Ly, IMG_device, NORM_device,
+    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 norm_kernel_stop_time.record()
 
 # Copy image to host and send to output kernel
@@ -282,8 +274,8 @@ norm_kernel_stop_time.record()
 # This kernel will utilize the BOX and IMG_norm and modify the OUT
 ##########
 out_kernel_start_time.record()
-#out_kernel(Lx, Ly, IMG_device, BOX_device, OUT_device,
-#    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+out_kernel(Lx, Ly, IMG_device, BOX_device, OUT_device,
+    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 out_kernel_stop_time.record()
 
 # Copy image to host and 
