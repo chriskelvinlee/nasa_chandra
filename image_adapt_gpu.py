@@ -19,9 +19,9 @@ except:
     print "Usage:",sys.argv[0], "infile maxrad threshold"; sys.exit(1)
 """
 
-file_name   = 'png_input/114_ccd7_small.png'
-Threshold   = np.int32(10)
-MaxRad      = np.int32(2)
+file_name   = 'extrap_data/11759_ccd3/11759_32x32.png'
+Threshold   = np.int32(1)
+MaxRad      = np.int32(10)
 
 
 # setup input file
@@ -34,7 +34,7 @@ Ly = np.int32( IMG.shape[1] )
 
 # Allocate memory
 # size of the box needed to reach the threshold value or maxrad value
-BOX = array( IMG )
+BOX = np.zeros((Lx, Ly), dtype=np.float32)
 # normalized array
 NORM = np.zeros((Lx, Ly), dtype=np.float32)
 # output array
@@ -310,6 +310,8 @@ imsave('{}_smoothed_gpu.png'.format(file_name), IMG_out, cmap=cm.gray, vmin=0, v
 f = open('debug_gpu.txt', 'w')
 set_printoptions(threshold='nan')
 print >>f,'IMG'
+print >>f, str(IMG).replace('[',' ').replace(']', ' ')
+print >>f,'OUTPUT'
 print >>f, str(IMG_out).replace('[',' ').replace(']', ' ')
 print >>f,'BOX'
 print >>f, str(BOX_out).replace('[',' ').replace(']', ' ')

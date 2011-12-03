@@ -3,8 +3,11 @@ import os
 import numpy as np
 import time
 
+#Debug value, if 1 print out debug text file
+DEBUG = 1
+
 # Update img directory to reflect github
-file_name = 'png_input/114_ccd7_small.png'
+file_name = 'extrap_data/11759_ccd3/11759_32x32.png'
 original_image_rgb = imread(file_name)
 
 # Image is black and white so R=B=G
@@ -20,13 +23,16 @@ total_start_time = time.time()
 setup_start_time = time.time()
 
 # Allocate memory
-RAD = np.zeros((Lx, Ly), dtype=np.float64)
-NORM = np.zeros((Lx, Ly), dtype=np.float64)
-OUT = np.zeros((Lx, Ly), dtype=np.float64)
+# size of the box needed to reach the threshold value or maxrad value
+BOX = np.zeros((Lx, Ly), dtype=np.float32) 
+# normalized array
+NORM = np.zeros((Lx, Ly), dtype=np.float32)
+# output array
+OUT = np.zeros((Lx, Ly), dtype=np.float32)
 
 # Set Parameters
-Threshold = 10
-MaxRad = 2
+Threshold = 0.2
+MaxRad = 8
 
 setup_stop_time = time.time()
 kernel_start_time = time.time()
@@ -53,8 +59,8 @@ for xx in range(Lx):
                         ksum += 1.0
             qq += 1
             
-        # set the size of the radius for the determined box
-        RAD[xx][yy] = ss
+        # save the size of the box determined to reach the threshold value
+        BOX[xx][yy] = ss
 
         # Determine the normalization for each box
         # Norm can't be determined from the above loop because it relies on the
@@ -63,24 +69,26 @@ for xx in range(Lx):
         for ii in xrange( int(-ss), int(ss+1) ):
             for jj in xrange( int(-ss), int(ss+1) ):
                 if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):
-                    NORM[xx+ii][yy+jj] += 1.0 / ksum
+                    if(ksum != 0):
+                        NORM[xx+ii][yy+jj] += 1.0 / ksum
 #---------------------------------------------------------------
 
 # Normalize the image
 for xx in range(Lx):
     for yy in range(Ly):
-        IMG[xx][yy] /= NORM[xx][yy]
+        if(NORM[xx][yy] != 0):
+            IMG[xx][yy] /= NORM[xx][yy]
         
 #---------------------------------------------------------------
 
 # Output file
 for xx in range(Lx):
     for yy in range(Ly):
-        ss = RAD[xx][yy]
+        ss = BOX[xx][yy]
         sum = 0.0
         ksum = 0.0
 
-        #
+        #resmooth with normalized IMG
         for ii in xrange( int(-ss), int(ss+1) ):
             for jj in xrange( int(-ss), int(ss+1) ):
                 if((xx + ss < Lx) and (yy + ss < Ly)):
@@ -98,18 +106,21 @@ total_stop_time = time.time()
 #---------------------------------------------------------------
 
 # Save the current image.
-imsave('{}_serial_smoothed_serial.png'.format(os.path.splitext(file_name)[0]), OUT, cmap=cm.gray, vmin=0, vmax=1)
+imsave('{}_smoothed_serial.png'.format(os.path.splitext(file_name)[0]), OUT, cmap=cm.gray, vmin=0, vmax=1)
 
 # Debug
-f = open('debug1.txt', 'w')
-set_printoptions(threshold='nan')
-print >>f,'IMG'
-print >>f, str(IMG).replace('[',' ').replace(']', ' ')
-print >>f,'BOX'
-print >>f, str(RAD).replace('[',' ').replace(']', ' ')
-print >>f,'NORM'
-print >>f, str(NORM).replace('[',' ').replace(']', ' ')
-f.close()
+if(DEBUG):
+    f = open('debug_serial.txt', 'w')
+    set_printoptions(threshold='nan')
+    print >>f,'IMG'
+    print >>f, str(IMG).replace('[',' ').replace(']', ' ')
+    print >>f,'OUTPUT'
+    print >>f, str(OUT).replace('[',' ').replace(']', ' ')
+    print >>f,'BOX'
+    print >>f, str(BOX).replace('[',' ').replace(']', ' ')
+    print >>f,'NORM'
+    print >>f, str(NORM).replace('[',' ').replace(']', ' ')
+    f.close()
 
 # Print results & save
 print "Total Time: %f"      % (total_stop_time - total_start_time)
