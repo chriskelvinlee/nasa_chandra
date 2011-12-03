@@ -31,8 +31,8 @@ NORM = np.zeros((Lx, Ly), dtype=np.float32)
 OUT = np.zeros((Lx, Ly), dtype=np.float32)
 
 # Set Parameters
-Threshold = 1
-MaxRad = 10
+Threshold = np.int32(1)
+MaxRad = np.int32(10)
 
 setup_stop_time = time.time()
 kernel_start_time = time.time()
@@ -91,14 +91,12 @@ for xx in range(Lx):
         #resmooth with normalized IMG
         for ii in xrange( int(-ss), int(ss+1) ):
             for jj in xrange( int(-ss), int(ss+1) ):
-                if((xx + ss < Lx) and (yy + ss < Ly)):
+                if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):
                     sum += IMG[xx+ii][yy+jj]
                     ksum += 1.0
         #check for divide by zero
         if(ksum != 0):
             OUT[xx][yy] = sum / ksum
-        else:
-            OUT[xx][yy] = 0
 
 
 kernel_stop_time = time.time()

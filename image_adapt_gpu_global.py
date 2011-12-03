@@ -90,20 +90,10 @@ kernel_smooth_source = \
             {
                 for (int jj = -ss; jj < ss+1; jj++)
                 {
-                    if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
+                    if ( (i-ss >= 0) && (i+ss < Ly) && (j-ss >= 0) && (j+ss < Lx) )
                     {
-                         // Compute within bounds of block dimensions
-                        if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
-                        {
-                            sum += s_IMG[stid + ii*blockDim.y + jj];
-                            ksum += 1.0;          
-                        }
-                        // Compute block borders with global memory
-                        else
-                        {
                             sum += IMG[gtid + ii*Ly + jj];
-                            ksum += 1.0;                   
-                        }                                     
+                            ksum += 1.0;                           
                     }
                 }
             }
@@ -117,12 +107,12 @@ kernel_smooth_source = \
         {
             for (int jj = -ss; jj < ss+1; jj++)
             {
-                if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
+                if ( (i-ss >= 0) && (i+ss < Ly) && (j-ss >= 0) && (j+ss < Lx) )
                 {
-                if (ksum != 0)
-                {
-                    NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
-                }
+                    if (ksum != 0)
+                    {
+                    NORM[gtid + ii*Ly + jj] +=  1.0 / 2;
+                    }
                 }
             }
         }
@@ -157,21 +147,9 @@ kernel_norm_source = \
     // Compute all pixels except for image border
 	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
 	{
-        // Compute within bounds of block dimensions
-        if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+        if (NORM != 0)
         {
-            if (NORM[gtid] != 0)
-            {
-                IMG[gtid] /= s_NORM[stid];
-            }
-        }
-        // Compute block borders with global memory
-        else
-        {
-            if (NORM[gtid] != 0)
-            {        
             IMG[gtid] /= NORM[gtid];
-            }
         }
 	}
 	__syncthreads();
@@ -210,20 +188,10 @@ kernel_out_source = \
         {
             for (int jj = -ss; jj < ss+1; jj++)
             {
-            if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
+            if ( (i-ss >= 0) && (i+ss < Ly) && (j-ss >= 0) && (j+ss < Lx) )
                 {
-                     // Compute within bounds of block dimensions
-                    if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
-                    {
-                        sum += s_IMG[stid + ii*blockDim.y + jj];
-                        ksum += 1.0;          
-                    }
-                    // Compute block borders with global memory
-                    else
-                    {
                         sum += IMG[gtid + ii*Ly + jj];
                         ksum += 1.0;                   
-                    }
                 }
             }
         }
