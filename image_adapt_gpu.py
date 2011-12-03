@@ -297,7 +297,8 @@ out_kernel(Lx, Ly, IMG_device, BOX_device, OUT_device,
     block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 out_kernel_stop_time.record()
 
-# Copy image to host and 
+# Copy image to host and
+IMG = IMG_device.get()
 IMG_out = OUT_device.get()
 BOX_out = BOX_device.get()
 NORM_out = NORM_device.get()
