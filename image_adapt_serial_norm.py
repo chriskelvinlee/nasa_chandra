@@ -54,7 +54,7 @@ for xx in range(Lx):
                         sum += IMG[xx + ii][yy + jj]
                         ksum += 1.0
             else:
-                qq = MaxRad
+                break;
             qq += 1
             
         # set the size of the radius for the determined box
@@ -106,8 +106,11 @@ imsave('{}_serial_smoothed_serial.png'.format(os.path.splitext(file_name)[0]), O
 
 # Debug
 f = open('debug.txt', 'w')
+set_printoptions(threshold='nan')
 print >>f,'IMG'
 print >>f, str(IMG).replace('[',' ').replace(']', ' ')
+print >>f,'BOX'
+print >>f, str(RAD).replace('[',' ').replace(']', ' ')
 print >>f,'NORM'
 print >>f, str(NORM).replace('[',' ').replace(']', ' ')
 f.close()

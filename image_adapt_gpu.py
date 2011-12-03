@@ -76,7 +76,7 @@ kernel_smooth_source = \
     __syncthreads();
     
     // Compute all pixels except for image border
-	if ( i > 0 && i < Ly-1 && j > 0 && j < Lx-1 )
+	if ( i > 0 && i < Ly && j > 0 && j < Lx )
 	{
 	    // Continue until parameters are met
 	    while (sum < Threshold && qq < MaxRad)
@@ -88,32 +88,16 @@ kernel_smooth_source = \
 	        // create a weighted gaussian sum
 	        // TO DO
 	        
-            // Compute within bounds of block dimensions
-            if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+            // Normal adaptive smoothing (w/o gaussian sum)
+            for (int ii = -ss; ii < ss+1; ii++)
             {
-                // Normal adaptive smoothing (w/o gaussian sum)
-                for (int ii = -ss; ii < ss+1; ii++)
+                for (int jj = -ss; jj < ss+1; jj++)
                 {
-                    for (int jj = -ss; jj < ss+1; jj++)
-                    {
-                        sum += s_IMG[stid + ii + jj];
-                        ksum += 1.0;
-                    }
+                    sum += IMG[gtid + ii*Ly + jj];
+                    ksum += 1.0;
                 }
             }
-            // Compute block borders with global memory
-            else
-            {
-                // Normal adaptive smoothing (w/o gaussian sum)
-                for (int ii = -ss; ii < ss+1; ii++)
-                {
-                    for (int jj = -ss; jj < ss+1; jj++)
-                    {
-                        sum += IMG[gtid + ii + jj];
-                        ksum += 1.0;
-                    }
-                }
-            }
+        
             qq += 1;
         }
         BOX[gtid] = ss;
@@ -124,7 +108,8 @@ kernel_smooth_source = \
     {
         for (int jj = -ss; jj < ss+1; jj++)
         {
-            NORM[gtid + ii + jj] += 1.0 / ksum;
+            NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
+
         }
     }
 	}
@@ -288,10 +273,23 @@ out_kernel_stop_time.record()
 
 # Copy image to host and 
 IMG_out = OUT_device.get()
+BOX_out = BOX_device.get()
+NORM_out = NORM_device.get()
+
 
 
 total_stop_time = time.time()
 imsave('{}_smoothed_gpu.png'.format(file_name), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
+# Debug
+f = open('debug_gpu.txt', 'w')
+set_printoptions(threshold='nan')
+print >>f,'IMG'
+print >>f, str(IMG_out).replace('[',' ').replace(']', ' ')
+print >>f,'BOX'
+print >>f, str(BOX_out).replace('[',' ').replace(']', ' ')
+print >>f,'NORM'
+print >>f, str(NORM_out).replace('[',' ').replace(']', ' ')
+f.close()
 
 # Print results & save
 total_time      = (total_stop_time - total_start_time)
