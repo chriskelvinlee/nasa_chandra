@@ -119,7 +119,10 @@ kernel_smooth_source = \
             {
                 if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
                 {
-                    NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
+                    if(ksum != 0)
+                    {
+                        NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
+                    }
                 }
             }
         }
@@ -157,12 +160,18 @@ kernel_norm_source = \
         // Compute within bounds of block dimensions
         if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
         {
-            IMG[gtid] /= s_NORM[stid];
+            if(s_NORM[stid] != 0)
+            {
+                IMG[gtid] /= s_NORM[stid];
+            }
         }
         // Compute block borders with global memory
         else
         {
-            IMG[gtid] /= NORM[gtid];
+            if(NORM[gtid] != 0)
+            {
+                IMG[gtid] /= NORM[gtid];
+            }
         }
 	}
 	__syncthreads();
