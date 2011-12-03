@@ -109,18 +109,18 @@ kernel_smooth_source = \
         BOX[gtid] = ss;
         __syncthreads();
     
-    // Determine the normalization for each box
-    for (int ii = -ss; ii < ss+1; ii++)
-    {
-        for (int jj = -ss; jj < ss+1; jj++)
+        // Determine the normalization for each box
+        for (int ii = -ss; ii < ss+1; ii++)
         {
-            if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly))
+            for (int jj = -ss; jj < ss+1; jj++)
             {
-                NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
-            }
+                if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly))
+                {
+                    NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
+                }
 
+            }
         }
-    }
 	}
 	__syncthreads();
 
