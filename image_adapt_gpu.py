@@ -10,12 +10,18 @@ from pycuda.reduction import ReductionKernel
 from pycuda.elementwise import ElementwiseKernel
 import time
 
-
+"""
+# DOES NOT SEEM TO WORK FOR RESONANCE
 #Get the input filename from the command line
 try:
     file_name = sys.argv[1]; MaxRad = float(sys.argv[2]); Threshold = float(sys.argv[3])
 except:
     print "Usage:",sys.argv[0], "infile maxrad threshold"; sys.exit(1)
+"""
+
+file_name   = 'png_input/114_ccd7_small.png'
+MaxRad      = float(2)
+Threshold   = float(10)
 
 # setup input file
 IMG_rgb = imread(file_name)
@@ -27,11 +33,14 @@ Ly = np.int32( IMG.shape[1] )
 
 # Allocate memory
 # size of the box needed to reach the threshold value or maxrad value
-BOX = np.zeros((Lx, Ly), dtype=np.float64) 
+#BOX = np.zeros((Lx, Ly), dtype=np.float64) 
+BOX = array(IMG)
 # normalized array
-NORM = np.zeros((Lx, Ly), dtype=np.float64)
+# NORM = np.zeros((Lx, Ly), dtype=np.float64)
+NORM = array(IMG)
 # output array
-OUT = np.zeros((Lx, Ly), dtype=np.float64)
+# OUT = np.zeros((Lx, Ly), dtype=np.float64)
+OUT = array(IMG)
 
 # Execution configuration
 TPBx	= int( 32 )                # Sweet spot num of threads per block
@@ -39,13 +48,14 @@ TPBy    = int( 32 )                # 32*32 = 1024 max
 nBx     = int( Ly/TPBx )           # Num of thread blocks
 nBy     = int( Lx/TPBy ) 
 
+
 #kernel for first part of algorithm that performs the smoothing
 ## TO DO ##   
 # Implement The kernel
 #########
 kernel_smooth_source = \
 """
-    __global__ void smoothingFilter(float* IMG, int Lx, int Ly, float* BOX, float* NORM )
+    __global__ void smoothingFilter(int Lx, int Ly, float* IMG, float* BOX, float* NORM, float* OUT)
     {
     // Indexing
     int tid = threadIdx.x;
@@ -59,21 +69,7 @@ kernel_smooth_source = \
     s_IMG[stid] = IMG[gtid];
     __syncthreads();
 
-    // Compute all pixels except for image border
-	if ( i > 0 && i < Ly-1 && j > 0 && j < Lx-1 )
-	{
-        // Compute within bounds of block dimensions
-        if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
-        {
-            //perform calculations here
-        }
-        // Compute block borders with global memory
-        else
-        {
-            //perform calculations
-        }
-	}
-	__syncthreads();
+    OUT[gtid] = IMG[gtid];
 
     }
     """
@@ -81,9 +77,10 @@ kernel_smooth_source = \
 ## TO DO ##   
 # Implement The kernel
 #########
+
 kernel_norm_source = \
 """
-    __global__ void normalizeFilter(float* IMG_norm, float* IMG, int Lx, int Ly, float* NORM )
+    __global__ void normalizeFilter(int Lx, int Ly, float* IMG_norm, float* IMG, float* NORM )
     {
     // Indexing
     int tid = threadIdx.x;
@@ -108,13 +105,15 @@ kernel_norm_source = \
         if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
         {
             //perform calculations here
-            IMG_norm[gtid] = s_IMG[stid] / s_NORM[gtid]
+            //IMG_norm[gtid] = s_IMG[stid] / s_NORM[gtid]
+            break;
         }
         // Compute block borders with global memory
         else
         {
             //perform calculations
-            IMG_norm[gtid] = IMG[gtid] / NORM[gtid]
+            //IMG_norm[gtid] = IMG[gtid] / NORM[gtid]
+            break;
         }
 	}
 	__syncthreads();
@@ -148,22 +147,24 @@ kernel_out_source = \
         if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
         {
             //perform calculations here
+            break;
         }
         // Compute block borders with global memory
         else
         {
             //perform calculations
+            break;
         }
 	}
 	// Swap references to the images by replacing value
 	__syncthreads();
     }
-    """
+"""
 
 # Initialize kernel
 smoothing_kernel = nvcc.SourceModule(kernel_smooth_source).get_function("smoothingFilter")
-normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
-out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
+# normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
+# out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
 
 total_start_time = time.time()
 setup_start_time = time.time()
@@ -172,16 +173,21 @@ setup_start_time = time.time()
 smem_size   = int(TPBx*TPBy*4)
 
 # Copy image to device
-IMG_device = gpuarray.to_gpu(IMG)
-IMG_norm_device = gpuarray.to_gpu(IMG)
-IMG_out_device = gpuarray.to_gpu(IMG)
-BOX_device = gpuarray.to_gpu(BOX)
-NORM_device = gpuarray.to_gpu(NORM)
+# ONLY NEED TO SEND IMG, NORM, BOX, OUT ARRAYS TO GLOBAL ONCE
+IMG_device          = gpuarray.to_gpu(IMG)
+# IMG_norm_device     = gpuarray.to_gpu(IMG)
+# IMG_out_device      = gpuarray.to_gpu(IMG)
+BOX_device          = gpuarray.to_gpu(BOX)
+NORM_device         = gpuarray.to_gpu(NORM)
+OUT_device          = gpuarray.to_gpu(OUT)
 
 setup_stop_time = time.time()
-
-kernel_start_time = cu.Event()
-kernel_stop_time = cu.Event()
+smth_kernel_start_time   = cu.Event()
+smth_kernel_stop_time    = cu.Event()
+norm_kernel_start_time   = cu.Event()
+norm_kernel_stop_time    = cu.Event()
+out_kernel_start_time    = cu.Event()
+out_kernel_stop_time     = cu.Event()
 
 ##########
 # The kernel will convolve the image with a gaussian weighted sum
@@ -191,7 +197,7 @@ kernel_stop_time = cu.Event()
 ##########
 
 smth_kernel_start_time.record()
-smoothing_kernel(IMG_device, Lx, Ly, BOX_device, NORM_device, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+smoothing_kernel(Lx, Ly, IMG_device, BOX_device, NORM_device, OUT_device, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 smth_kernel_stop_time.record()
 
 ##########
@@ -200,29 +206,32 @@ smth_kernel_stop_time.record()
 ##########
 
 # Copy normalization factor to host and box size array
-NORM = NORM_device.get()
-BOX = BOX_device.get()
+# No need because it is already stored on device
+# NORM = NORM_device.get()
+# BOX = BOX_device.get()
 
 norm_kernel_start_time.record()
-normalize_kernel(IMG_norm_device, IMG_device, Lx, Ly, NORM, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+# normalize_kernel(Lx, Ly, IMG_device, NORM_device, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 norm_kernel_stop_time.record()
 
 # Copy image to host and send to output kernel
-IMG_norm = IMG_norm_device.get()
+# No need because it is already stored on device
+# IMG_norm = IMG_norm_device.get()
 
 ##########
 # This will resmooth the data utilizing the new normalized image
 # This kernel will utilize the BOX and IMG_norm and modify the OUT
 ##########
 out_kernel_start_time.record()
-out_kernel(IMG_out_device, IMG_norm, BOX, Lx, Ly, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
-out_kernel_start_time.record()
+# out_kernel(Lx, Ly, BOX_device, IMG_device, OUT_device, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+out_kernel_stop_time.record()
 
 # Copy image to host and 
-IMG_out = IMG_out_device.get()
+IMG_out = OUT_device.get()
+
 
 total_stop_time = time.time()
-imsave('{}_smoothed.png'.format(filename), curr_im, cmap=cm.gray, vmin=0, vmax=1)
+imsave('{}_smoothed_gpu.png'.format(file_name), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
 
 # Print results & save
 total_time      = (total_stop_time - total_start_time)
