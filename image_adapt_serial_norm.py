@@ -53,7 +53,7 @@ for xx in range(Lx):
             ## BE WRONG FOR LINE 73 AS WELL.
             ## LOOK AT C VERSION IN GPU:
             ## if ( i > 0 && i < Ly && j > 0 && j < Lx )
-            if((xx + ss < Lx) and (yy + ss < Ly)):
+            if(((xx + ss < Lx) (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):
                 # Updated for loops for python
                 for ii in xrange( int(-ss), int(ss+1) ):
                     for jj in xrange( int(-ss), int(ss+1) ):
@@ -70,9 +70,9 @@ for xx in range(Lx):
         # Norm can't be determined from the above loop because it relies on the
         # total ksum value, if placed above the incorrect ksum value will be
         # divided.
-        for ii in xrange( int(-ss), int(ss+1) ):
-            for jj in xrange( int(-ss), int(ss+1) ):
-                if((xx + ss < Lx) and (yy + ss < Ly)):
+        if(((xx + ss < Lx) (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):
+            for ii in xrange( int(-ss), int(ss+1) ):
+                for jj in xrange( int(-ss), int(ss+1) ):
                     NORM[xx+ii][yy+jj] += 1.0 / ksum
 #---------------------------------------------------------------
 
