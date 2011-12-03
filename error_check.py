@@ -12,12 +12,12 @@ from pylab import *
 
 
 # Read in serial version, make sure precomputed dimension are same
-serial_file   = "png_input/114_ccd7_small_smoothed_serial.png"  # Precomputed serial x20 iterations
+serial_file   = "extrap_data/11759_ccd3/11759_32x32_smoothed_serial.png"  # Precomputed serial x20 iterations
 serial_im_rgb = imread(serial_file)                 # Must be same dimensions     
 serial_im     = array( serial_im_rgb[:,:,0] )       # Compare with parallel_im
     
 # Read in parallel version for proper benchmark
-parallel_file   = "png_input/114_ccd7_small_smoothed_gpu.png"     
+parallel_file   = "extrap_data/11759_ccd3/11759_32x32_smoothed_gpu.png"     
 parallel_im_rgb = imread(parallel_file)                  
 parallel_im     = array( parallel_im_rgb[:,:,0] )   
 

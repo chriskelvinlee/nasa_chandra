@@ -315,7 +315,7 @@ NORM_out = NORM_device.get()
 
 
 total_stop_time = time.time()
-imsave('{}_smoothed_gpu.png'.format(os.path.splitext(file_name)[0]), OUT, cmap=cm.gray, vmin=0, vmax=1)
+imsave('{}_smoothed_gpu.png'.format(os.path.splitext(file_name)[0]), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
 # Debug
 f = open('debug_gpu.txt', 'w')
 set_printoptions(threshold='nan')
