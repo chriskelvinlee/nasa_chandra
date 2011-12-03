@@ -53,14 +53,12 @@ for xx in range(Lx):
             ## BE WRONG FOR LINE 73 AS WELL.
             ## LOOK AT C VERSION IN GPU:
             ## if ( i > 0 && i < Ly && j > 0 && j < Lx )
-            if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):
-                # Updated for loops for python
-                for ii in xrange( int(-ss), int(ss+1) ):
-                    for jj in xrange( int(-ss), int(ss+1) ):
+            # Updated for loops for python
+            for ii in xrange( int(-ss), int(ss+1) ):
+                for jj in xrange( int(-ss), int(ss+1) ):
+                    if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):                        
                         sum += IMG[xx + ii][yy + jj]
                         ksum += 1.0
-            else:
-                break;
             qq += 1
             
         # set the size of the radius for the determined box
@@ -70,9 +68,9 @@ for xx in range(Lx):
         # Norm can't be determined from the above loop because it relies on the
         # total ksum value, if placed above the incorrect ksum value will be
         # divided.
-        if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):
-            for ii in xrange( int(-ss), int(ss+1) ):
-                for jj in xrange( int(-ss), int(ss+1) ):
+        for ii in xrange( int(-ss), int(ss+1) ):
+            for jj in xrange( int(-ss), int(ss+1) ):
+                if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):
                     NORM[xx+ii][yy+jj] += 1.0 / ksum
 #---------------------------------------------------------------
 
@@ -111,7 +109,7 @@ total_stop_time = time.time()
 imsave('{}_serial_smoothed_serial.png'.format(os.path.splitext(file_name)[0]), OUT, cmap=cm.gray, vmin=0, vmax=1)
 
 # Debug
-f = open('debug.txt', 'w')
+f = open('debug1.txt', 'w')
 set_printoptions(threshold='nan')
 print >>f,'IMG'
 print >>f, str(IMG).replace('[',' ').replace(']', ' ')
