@@ -54,7 +54,7 @@ nBy     = int( Lx/TPBy )
 kernel_smooth_source = \
 """
     __global__ void smoothingFilter(int Lx, int Ly, int Threshold, int MaxRad, 
-        float* IMG, float* BOX, float* NORM, float* OUT)
+        float* IMG, float* BOX, float* NORM)
     {
     // Indexing
     int tid = threadIdx.x;
@@ -87,6 +87,9 @@ kernel_smooth_source = \
 	        
 	        // create a weighted gaussian sum
 	        // TO DO
+	        
+	        // USE GLOBAL MEMORY FOR NOW UNTIL WE CAN DEBUG
+	        // WHY THE NORM IS NOT MATCHING UP WITH SERIAL
 	        
             // Normal adaptive smoothing (w/o gaussian sum)
             for (int ii = -ss; ii < ss+1; ii++)
@@ -121,10 +124,9 @@ kernel_smooth_source = \
 ## TO DO ##   
 # Implement The kernel
 #########
-
 kernel_norm_source = \
 """
-    __global__ void normalizeFilter(int Lx, int Ly, float* IMG_norm, float* IMG, float* NORM )
+    __global__ void normalizeFilter(int Lx, int Ly, float* IMG, float* NORM )
     {
     // Indexing
     int tid = threadIdx.x;
@@ -134,30 +136,27 @@ kernel_norm_source = \
     int stid = tjd * blockDim.x + tid;
     int gtid = j * Ly + i;  
 
-    // shared memory for image matrix
+    // shared memory for IMG and NORM
     extern __shared__ float s_IMG[];
-    s_IMG[stid] = IMG[gtid];
-    // shared memory for NORM factors
     extern __shared__ float s_NORM[];
+    s_IMG[stid] = IMG[gtid];
     s_NORM[stid] = NORM[gtid];
     __syncthreads();    
 
     // Compute all pixels except for image border
-	if ( i > 0 && i < Ly-1 && j > 0 && j < Lx-1 )
+	if ( i > 0 && i < Ly && j > 0 && j < Lx )
 	{
         // Compute within bounds of block dimensions
         if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
         {
             //perform calculations here
-            //IMG_norm[gtid] = s_IMG[stid] / s_NORM[gtid]
-            break;
+            IMG[gtid] = s_IMG[stid] / s_NORM[stid];
         }
         // Compute block borders with global memory
         else
         {
             //perform calculations
-            //IMG_norm[gtid] = IMG[gtid] / NORM[gtid]
-            break;
+            IMG[gtid] = IMG[gtid] / NORM[gtid];
         }
 	}
 	__syncthreads();
@@ -170,7 +169,7 @@ kernel_norm_source = \
 #########
 kernel_out_source = \
 """
-    __global__ void outFilter( float* IMG_out, float* IMG_norm, float* BOX, int Lx, int Ly )
+    __global__ void outFilter( int Lx, int Ly, float* IMG, float* BOX, float* OUT )
     {
     // Indexing
     int tid = threadIdx.x;
@@ -180,35 +179,46 @@ kernel_out_source = \
     int stid = tjd * blockDim.x + tid;
     int gtid = j * Ly + i;  
 
+    // Smoothing params
+    float ss    = BOX[gtid];
+    float sum   = 0.0;
+    float ksum  = 0.0;
+
+
     extern __shared__ float s_IMG_norm[];
-    s_IMG_norm[stid] = IMG_norm[gtid];
+    s_IMG[stid] = IMG[gtid];
     __syncthreads();
 
     // Compute all pixels except for image border
-	if ( i > 0 && i < Ly-1 && j > 0 && j < Lx-1 )
+	if ( i > 0 && i < Ly && j > 0 && j < Lx )
 	{
-        // Compute within bounds of block dimensions
-        if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+        for (int ii = -ss; ii < ss+1; ii++)
         {
-            //perform calculations here
-            break;
-        }
-        // Compute block borders with global memory
-        else
-        {
-            //perform calculations
-            break;
+            for (int jj = -ss; jj < ss+1; jj++)
+            {
+                sum += IMG[gtid + ii*Ly + jj];
+                ksum += 1.0;
+            }
         }
 	}
-	// Swap references to the images by replacing value
+	
+    #check for divide by zero
+    if (ksum != 0)
+    {
+        OUT[gtid] = sum / ksum;
+    }
+    else
+    {
+        OUT[gtid] = 0;
+	}
 	__syncthreads();
     }
 """
 
 # Initialize kernel
 smoothing_kernel = nvcc.SourceModule(kernel_smooth_source).get_function("smoothingFilter")
-# normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
-# out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
+normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
+out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
 
 total_start_time = time.time()
 setup_start_time = time.time()
@@ -217,10 +227,7 @@ setup_start_time = time.time()
 smem_size   = int(TPBx*TPBy*4)
 
 # Copy image to device
-# ONLY NEED TO SEND IMG, NORM, BOX, OUT ARRAYS TO GLOBAL ONCE
 IMG_device          = gpuarray.to_gpu(IMG)
-# IMG_norm_device     = gpuarray.to_gpu(IMG)
-# IMG_out_device      = gpuarray.to_gpu(IMG)
 BOX_device          = gpuarray.to_gpu(BOX)
 NORM_device         = gpuarray.to_gpu(NORM)
 OUT_device          = gpuarray.to_gpu(OUT)
@@ -241,7 +248,7 @@ out_kernel_stop_time     = cu.Event()
 ##########
 
 smth_kernel_start_time.record()
-smoothing_kernel(Lx, Ly, Threshold, MaxRad, IMG_device, BOX_device, NORM_device, OUT_device,
+smoothing_kernel(Lx, Ly, Threshold, MaxRad, IMG_device, BOX_device, NORM_device,
     block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 smth_kernel_stop_time.record()
 
@@ -256,7 +263,8 @@ smth_kernel_stop_time.record()
 # BOX = BOX_device.get()
 
 norm_kernel_start_time.record()
-# normalize_kernel(Lx, Ly, IMG_device, NORM_device,block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+normalize_kernel(Lx, Ly, IMG_device, NORM_device,
+    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 norm_kernel_stop_time.record()
 
 # Copy image to host and send to output kernel
@@ -268,7 +276,8 @@ norm_kernel_stop_time.record()
 # This kernel will utilize the BOX and IMG_norm and modify the OUT
 ##########
 out_kernel_start_time.record()
-# out_kernel(Lx, Ly, BOX_device, IMG_device, OUT_device, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+out_kernel(Lx, Ly, IMG_device, BOX_device, OUT_device,
+    block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 out_kernel_stop_time.record()
 
 # Copy image to host and 
