@@ -58,34 +58,35 @@ Preparing The Data
 	In order to prepare the data, tools from the CIAO software suite were
 	used.  In order to install the software visit the CIAO website
 	(http://goo.gl/dsE5M).  The website gives detailed directions for
-	downloading and installing the software.  Steps for Obs ID 321:
-		1.  We wanted to convert the evt2.fits file into separate files
-		for each ccd and bin the data by 8 using the dmimg2jpg and
-		dmkeypar tools from CIAO to determine which ccds were turned on
-		during the observation: (http://goo.gl/V4POS)
-		(http://goo.gl/x25ZH)
+	downloading and installing the software.
 
-		%: dmkeypar "acisf00321N003_evt2.fits.gz" DETNAM echo+ %:
-		ACIS-235678 %: dmimg2jpg
-		"acisf00321N003_evt2.fits.gz[ccd_id=2][bin sky=::8]"
-		out=321_ccd2.jpg scalefun=log mode=h clob+ %: dmimg2jpg
-		"acisf00321N003_evt2.fits.gz[ccd_id=3][bin sky=::8]"
-		out=321_ccd3.jpg scalefun=log mode=h clob+ %: dmimg2jpg
-		"acisf00321N003_evt2.fits.gz[ccd_id=5][bin sky=::8]"
-		out=321_ccd5.jpg scalefun=log mode=h clob+ %: dmimg2jpg
-		"acisf00321N003_evt2.fits.gz[ccd_id=6][bin sky=::8]"
-		out=321_ccd6.jpg scalefun=log mode=h clob+ %: dmimg2jpg
-		"acisf00321N003_evt2.fits.gz[ccd_id=7][bin sky=::8]"
-		out=321_ccd7.jpg scalefun=log mode=h clob+ %: dmimg2jpg
-		"acisf00321N003_evt2.fits.gz[ccd_id=8][bin sky=::8]"
+	Steps for Obs ID 321: 
+	1.  We wanted to convert the evt2.fits file into
+	separate files for each ccd and bin the data by 8 using the dmimg2jpg
+	and dmkeypar tools from CIAO to determine which ccds were turned on
+	during the observation: (http://goo.gl/V4POS) (http://goo.gl/x25ZH)
+
+	%: dmkeypar "acisf00321N003_evt2.fits.gz" DETNAM echo+ 
+	%: ACIS-235678 
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=2][bin sky=::8]"
+		out=321_ccd2.jpg scalefun=log mode=h clob+
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=3][bin sky=::8]"
+		out=321_ccd3.jpg scalefun=log mode=h clob+
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=5][bin sky=::8]"
+		out=321_ccd5.jpg scalefun=log mode=h clob+
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=6][bin sky=::8]"
+		out=321_ccd6.jpg scalefun=log mode=h clob+
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=7][bin sky=::8]"
+		out=321_ccd7.jpg scalefun=log mode=h clob+
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=8][bin sky=::8]"
 		out=321_ccd8.jpg scalefun=log mode=h clob+
 
-		2.  I repeated the conversion for all four of our test Obs IDs.
-		3.  Once I had a directory full of jpg images of all of the ccds
-		for each of the observations I did a batch convert to turn them
-		in png files.  I did this using the MAC OS tool Automator
-		(http://goo.gl/pGeFB) to do the batch convert. This png images
-		then became our input images for our python scripts.
+	2.  I repeated the conversion for all four of our test Obs IDs.  
+	3.  Once I had a directory full of jpg images of all of the ccds for each of
+	the observations I did a batch convert to turn them in png files.  I did
+	this using the MAC OS tool Automator (http://goo.gl/pGeFB) to do the
+	batch convert. These png images then became our input images for our
+	python scripts.
 
 3.  Describe your program design and why you chose the features you did.
 
