@@ -70,7 +70,7 @@ for xx in range(Lx):
             for jj in xrange( int(-ss), int(ss+1) ):
                 if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):
                     if(ksum != 0):
-                        NORM[xx+ii][yy+jj] += 1.0 / ksum
+                        NORM[xx+ii][yy+jj] += 1.0 / 2
 #---------------------------------------------------------------
 
 # Normalize the image
@@ -111,7 +111,7 @@ if(DEBUG):
     f = open('debug_serial.txt', 'w')
     set_printoptions(threshold='nan')
     print >>f,'IMG'
-    print >>f, str(IMG).replace('[',' ').replace(']', ' ')
+    #print >>f, str(IMG).replace('[',' ').replace(']', ' ')
     print >>f,'OUTPUT'
     print >>f, str(OUT).replace('[',' ').replace(']', ' ')
     print >>f,'BOX'
