@@ -6,8 +6,6 @@ import pycuda.autoinit
 import pycuda.driver as cu
 import pycuda.compiler as nvcc
 from pycuda import gpuarray
-from pycuda.reduction import ReductionKernel
-from pycuda.elementwise import ElementwiseKernel
 import time
 
 """
@@ -25,8 +23,8 @@ DEBUG = 1
 file_name   = 'extrap_data/11759_ccd3/11759_32x32.png'
 
 # Parameter
-Threshold   = np.int32(1)
-MaxRad      = np.int32(10)
+Threshold   = np.int32(15)
+MaxRad      = np.int32(4)
 
 # Setup input file
 IMG_rgb = imread(file_name)
@@ -35,6 +33,9 @@ IMG = array( IMG_rgb[:,:,0] )
 # Get image data
 Lx = np.int32( IMG.shape[0] )
 Ly = np.int32( IMG.shape[1] )
+
+total_start_time = time.time()
+setup_start_time = time.time()
 
 # Allocate memory
 # Max box smoothing stencil
@@ -117,7 +118,7 @@ kernel_smooth_source = \
                 {
                     if (ksum != 0)
                     {
-                        NORM[gtid + ii*Ly + jj] +=  1.0 / 2;
+                        NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
                     }
                 }
             }
@@ -154,7 +155,7 @@ kernel_norm_source = \
     // Compute all pixels except for image border
 	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
 	{
-        if (NORM != 0)
+        if (NORM[gtid] != 0)
         {
             // Access from global memory
             IMG[gtid] /= NORM[gtid];
@@ -218,8 +219,7 @@ smoothing_kernel = nvcc.SourceModule(kernel_smooth_source).get_function("smoothi
 normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
 out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
 
-total_start_time = time.time()
-setup_start_time = time.time()
+
 
 # Allocate memory and constants
 smem_size   = int(TPBx*TPBy*4)
@@ -278,7 +278,7 @@ IMG_out = OUT_device.get()
 if(DEBUG):
     BOX_out = BOX_device.get()
     NORM_out = NORM_device.get()
-    f = open('debug_gpu.txt', 'w')
+    f = open('debug_gpu_g.txt', 'w')
     set_printoptions(threshold='nan')
     print >>f,'IMG'
     print >>f, str(IMG).replace('[',' ').replace(']', ' ')
@@ -291,12 +291,12 @@ if(DEBUG):
     f.close()
 
 # Print results & save
-imsave('{}_smoothed_gpu.png'.format(file_name), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
-total_time      = (total_stop_time - total_start_time)
+imsave('{}_smoothed_gpu_g.png'.format(os.path.splitext(file_name)[0]), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
 setup_time      = (setup_stop_time - setup_start_time)
 smth_ker_time   = (smth_kernel_start_time.time_till(smth_kernel_stop_time) * 1e-3)
 norm_ker_time   = (norm_kernel_start_time.time_till(norm_kernel_stop_time) * 1e-3)
 out_ker_time    = (out_kernel_start_time.time_till(out_kernel_stop_time) * 1e-3)
+total_time      = setup_time + smth_ker_time + norm_ker_time + out_ker_time
 
 print "Total Time: %f"                  % total_time
 print "Setup Time: %f"                  % setup_time

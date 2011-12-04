@@ -31,7 +31,7 @@ NORM = np.zeros((Lx, Ly), dtype=np.float32)
 OUT = np.zeros((Lx, Ly), dtype=np.float32)
 
 # Set Parameters
-Threshold = np.int32(1)
+Threshold = np.int32(15)
 MaxRad = np.int32(4)
 
 setup_stop_time = time.time()
@@ -54,7 +54,7 @@ for xx in range(Lx):
             #check for boundary condition
             for ii in xrange( int(-ss), int(ss+1) ):
                 for jj in xrange( int(-ss), int(ss+1) ):
-                    if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):                        
+                    if((xx + ss < Lx) and (xx - ss >= 0) and (yy + ss < Ly) and (yy - ss >=0)):                        
                         sum += IMG[xx + ii][yy + jj]
                         ksum += 1.0
             qq += 1
@@ -68,9 +68,9 @@ for xx in range(Lx):
         # divided.
         for ii in xrange( int(-ss), int(ss+1) ):
             for jj in xrange( int(-ss), int(ss+1) ):
-                if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):
+                if((xx + ss < Lx) and (xx - ss >= 0) and (yy + ss < Ly) and (yy - ss >=0)):      
                     if(ksum != 0):
-                        NORM[xx+ii][yy+jj] += 1.0 / 2
+                        NORM[xx+ii][yy+jj] += 1.0 / ksum
 #---------------------------------------------------------------
 
 # Normalize the image
@@ -91,7 +91,7 @@ for xx in range(Lx):
         #resmooth with normalized IMG
         for ii in xrange( int(-ss), int(ss+1) ):
             for jj in xrange( int(-ss), int(ss+1) ):
-                if(((xx + ss < Lx) and (xx - ss >= 0)) and ((yy + ss < Ly) and (yy - ss >=0))):
+                if((xx + ss < Lx) and (xx - ss >= 0) and (yy + ss < Ly) and (yy - ss >=0)):      
                     sum += IMG[xx+ii][yy+jj]
                     ksum += 1.0
         #check for divide by zero
@@ -111,9 +111,9 @@ if(DEBUG):
     f = open('debug_serial.txt', 'w')
     set_printoptions(threshold='nan')
     print >>f,'IMG'
-    #print >>f, str(IMG).replace('[',' ').replace(']', ' ')
+    print >>f, str(IMG).replace('[',' ').replace(']', ' ')
     print >>f,'OUTPUT'
-    #print >>f, str(OUT).replace('[',' ').replace(']', ' ')
+    print >>f, str(OUT).replace('[',' ').replace(']', ' ')
     print >>f,'BOX'
     print >>f, str(BOX).replace('[',' ').replace(']', ' ')
     print >>f,'NORM'
