@@ -32,6 +32,24 @@ Our project consists of several parts:
 
 Notes:
 
+Software:
+	For our project we chose to use Python for our implementation.  
+	For Python installation instructions, please visit:
+	http://www.python.org/getit/releases/2.7.2/
+
+	Python Modules:
+	Throughout our project we used several Python Modules:
+	These modules are addressed by installing SciPy, for instructions on installing
+	SciPy please visit:
+	http://www.scipy.org/Installing_SciPy
+
+	In order to achieve our parallel computational needs, install the following:
+	MPI4Py
+	http://mpi4py.scipy.org/
+	PyCUDA
+	http://mathema.tician.de/software/pycuda
+
+
 1. Data
 	The included data sets contain the following Chandra Observations
 	a. OBSID 114 - CAS A (http://en.wikipedia.org/wiki/Cassiopeia_A)
@@ -41,12 +59,15 @@ Notes:
 
 2. Serial Implemenation
 	How To Run
-
-Example Gaussian Sum
->>> ww
-array([[ 0.13533528,  0.36787944,  0.13533528],
-       [ 0.36787944,  1.        ,  0.36787944],
-       [ 0.13533528,  0.36787944,  0.13533528]])
+	
+	In order to run the serial version we ended up having to hard code some of the user defined values as there seemed to be an issue reading in command line arguments on the Resonance Cluster.
+So near the top of the file is the 'file_name' variable we use to to specify which image we wish to run through the algorithm.
+We then have our 'Threshold' and 'MaxRad' variables. These are the user defined variables that specify the value of the pixels in the created box, Threshold, and the maximum size box to attempt to reach the threshold value, MaxRad.
+The output image is created in the same directory as the input image. We remove the extension of the input file and then append '_smoothed_serial.png' to name.
+While running our program on the Resonance cluster from the command line:
+%: gpu-login
+%: cd to base directory of our project
+%: python image_adapt_serial_norm.py 
 
 
 3. GPU Implementation
