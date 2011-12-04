@@ -94,6 +94,7 @@ Preparing The Data
     
     0. Preprocessing Data
     1. Re-implementing serial version from C into Python
+	We wanted to use Python for seamless integration with the tools/ideas learned in the course.  
         We had to have 3 for-loop kernels to match CIAO source code. The Gaussian
         weights were relatively easy to implement in python in lines x and y
         of 'image_adapt_serial_gaussian.py.'
@@ -121,6 +122,8 @@ achieve? What optimizations did you implement to achieve this speedup?
 7.  What extensions and improvements can you suggest?
 	While implementing the project we ran into difficulty implementing a weighted sum approach.  We had a serial version coded up utilizing a gaussian weighted sum, then when we were coding the parallel version we ran into difficulties.  What took two lines to achieve in Python, was seemingly going to take 15-20 lines.  So we deferred that as an item we would like to implement given more time.  In addition to the gaussian weighted sum, there are other methods we could implement, like cone, boxcar, tophat, or mexican hat weighted sum approaches.  
 	In order to make the input files easier for us to deal with in python and with the installed packages on Resonance, we decided to convert the astronomical data from fits files ultimately to png files.  An improvement we could deliver would be to handle the fits file format directly, read in the data, perform our adaptive smoothing algorithm, then write out a new fits file.  This would also allow for a more one to one comparison between the C code implementation from CIAO tools to the Python implementation we used.
+	The original C implementation has the option to output some of the intermediate data files.  The user can specify to output a file of all of the sum values, a file of all the normalization values and also all the radius/box size values.  
+	The ultimate goal of the project would be to incorporate it into the CIAO data model.  This would allow for seamless integration into data analysis for x-ray astronomers with access to a GPU.  The CIAO Data Model (DM) is a versatile interface used by CIAO to examine and manipulate standard format data files (e.g Fits, ascii).  (http://goo.gl/QMXx0)  This would greatly reduce the time for data analysis.
 	 
 
 8.  What did you most enjoy about working on this project? What was the most
