@@ -95,11 +95,12 @@ Preparing The Data
     0. Preprocessing Data
     1. Re-implementing serial version from C into Python
 	a. We wanted to use Python for seamless integration with the tools/ideas learned in the course. 
-	The important features we chose to implement from the dmimgadapt() algorithm were the following:
+	b. The important features we chose to implement from the dmimgadapt() algorithm were the following:
 		+ For each pixel in an input image, find the smallest box such that the sum of the pixels inside the box is at least some user defined threshold value.  If the size of the box reaches a user defined maximum size, we move on to the next pixel.
 		+  Using the box size determined from (a), we create a properly normalized output image where the sum(input pixels) = sum(output pixels)
-	b. Upon initially looking over the dmimgadapt() tool, we initially thought the serial algorithm would be implemented using MPI techniques similar to the Wave Equation Problem encountered in our HW3 problem set.  But after further review of the algorithm, we noticed that the pixel values are static and therefore landed itself to GPU implementation.  
-        c. We had to have 3 for-loop kernels to match dmimgadapt() source code. The Gaussian weights were relatively easy to implement in python in lines x and y of 'image_adapt_serial_gaussian.py.'
+	c. Upon initially looking over the dmimgadapt() tool, we initially thought the serial algorithm would be implemented using MPI techniques similar to the Wave Equation Problem encountered in our HW3 problem set.  But after further review of the algorithm, we noticed that the pixel values are static and therefore landed itself to GPU implementation.  
+        d. We had to have 3 for-loop kernels to match dmimgadapt() source code. The Gaussian weights were relatively easy to implement in python in lines x and y of 'image_adapt_serial_gaussian.py.'
+    
     2. Implementing GPU version
         
         a. Implemented 3 kernels, minimized CPU to GPU read/writes but having all
@@ -110,6 +111,18 @@ Preparing The Data
 
 4.  How do you use your application (mouse and keyboard functions, input/output,
 etc)?
+	Serial Version:
+	In order to run the serial version we ended up having to hard code some of the user defined values as there seemed to be an issue reading in command line arguments on the Resonance Cluster.  
+	So near the top of the file is the 'file_name' variable we use to to specify which image we wish to run through the algorithm.  
+	We then have our 'Threshold' and 'MaxRad' variables.  These are the user defined variables that specify the value of the pixels in the created box, Threshold, and the maximum size box to attempt to reach the threshold value, MaxRad.  
+	The output image is created in the same directory as the input image.  We remove the extension of the input file and then append '_smoothed_serial.png' to name.  
+	While running our program on the Resonance cluster:
+	%: gpu-login
+	%: cd to base directory of our project
+	%: python image_adapt_serial_norm.py
+
+	GPU Version:
+
 
 5.  What is the performance of your code? What speedup and efficiency did you
 achieve? What optimizations did you implement to achieve this speedup?
