@@ -10,8 +10,8 @@ import time
 
 def parallel_smooth(file_name, rank, size, comm):
     # Parameter
-    Threshold   = np.int32(1)
-    MaxRad      = np.int32(10)
+    Threshold   = np.int32(15)
+    MaxRad      = np.int32(4)
 
     # Setup input file
     IMG_rgb = imread(file_name)
@@ -20,6 +20,9 @@ def parallel_smooth(file_name, rank, size, comm):
     # Get image data
     Lx = np.int32( IMG.shape[0] )
     Ly = np.int32( IMG.shape[1] )
+    
+    total_start_time = time.time()
+    setup_start_time = time.time()
 
     # Allocate memory
     # Max box smoothing stencil
@@ -203,8 +206,7 @@ def parallel_smooth(file_name, rank, size, comm):
     normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
     out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
 
-    total_start_time = time.time()
-    setup_start_time = time.time()
+
 
     # Allocate memory and constants
     smem_size   = int(TPBx*TPBy*4)
@@ -265,7 +267,7 @@ def parallel_smooth(file_name, rank, size, comm):
     smth_ker_time   = (smth_kernel_start_time.time_till(smth_kernel_stop_time) * 1e-3)
     norm_ker_time   = (norm_kernel_start_time.time_till(norm_kernel_stop_time) * 1e-3)
     out_ker_time    = (out_kernel_start_time.time_till(out_kernel_stop_time) * 1e-3)
-    total_time      = (total_stop_time - total_start_time) + setup_time + smth_ker_time + norm_ker_time + out_ker_time  
+    total_time      = setup_time + smth_ker_time + norm_ker_time + out_ker_time  
             
     results = [total_time, setup_time, smth_ker_time, norm_ker_time, out_ker_time]
     
@@ -306,17 +308,17 @@ file_set3 = ['extrap_data/11759/11759_1024x1024.png',
                 'extrap_data/11759/11759_8192x8192.png']
 
 # Send filenames as data
-parallel_smooth(file_set1[rank], rank, size, comm)
+parallel_smooth(file_set0[rank], rank, size, comm)
 
 
 # Print rank, mean, variance
 if rank == 0:
-    f = open('output1.txt', 'w')
+    f = open('output.txt', 'w')
     for k in range(0, size):
         results = comm.recv(source = k) # Receive data from processes
         # Print to output file
         print >>f,"***Rank %d***" % k
-        print >>f,'{}_smoothed_gpu.png'.format(os.path.splitext(file_set1[k])[0])
+        print >>f,'{}_smoothed_gpu.png'.format(os.path.splitext(file_set0[k])[0])
         print >>f, "Total Time: %f"                  % results[0]
         print >>f, "Setup Time: %f"                  % results[1]
         print >>f, "Kernel (Smooth) Time: %f"        % results[2]
@@ -324,7 +326,7 @@ if rank == 0:
         print >>f, "Kernel (Output) Time: %f"        % results[4]
         print >>f, "\n"
         print "***Rank %d***" % k
-        print '{}_smoothed_gpu.png'.format(os.path.splitext(file_set1[k])[0])
+        print '{}_smoothed_gpu.png'.format(os.path.splitext(file_set0[k])[0])
         # Print to terminal
         print "Total Time: %f"                  % results[0]
         print "Setup Time: %f"                  % results[1]
