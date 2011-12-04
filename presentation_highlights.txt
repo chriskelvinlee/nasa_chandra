@@ -1,0 +1,18 @@
+Description from the course website:
+
+Project Presentations
++ Your presentation is important for conveying the key ideas of your project. 
+
++ Each team will create a two minute screencast with narration showing a demo of your application and/or some slides. 
+
++ Focus the majority of your screencast on your main contributions rather than on technical details. 
+
++ What do you feel is the coolest part of your project? 
+
++ What insights did you gain? 
+
++ What is the single most important thing you would like to show the class? Make sure it is upfront and center rather than at the end. 
+
+
+Notes
+
