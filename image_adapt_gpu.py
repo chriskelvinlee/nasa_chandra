@@ -19,7 +19,7 @@ except:
     print "Usage:",sys.argv[0], "infile maxrad threshold"; sys.exit(1)
 """
 
-file_name   = 'extrap_data/11759_ccd3/11759_32x32.png'
+file_name   = 'extrap_data/11759_ccd3/11759_512x512.png'
 Threshold   = np.int32(15)
 MaxRad      = np.int32(4)
 
@@ -96,7 +96,7 @@ kernel_smooth_source = \
                     if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
                     {
                          // Compute within bounds of block dimensions
-                        if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+                        if( tid-ss > 0 && tid+ss < blockDim.x && tjd-ss > 0 && tjd+ss < blockDim.y )
                         {
                             sum += s_IMG[stid + ii*blockDim.y + jj];
                             ksum += 1.0;          
@@ -120,12 +120,9 @@ kernel_smooth_source = \
         {
             for (int jj = -ss; jj < ss+1; jj++)
             {
-                if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
-                {
                 if (ksum != 0)
                 {
                     NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
-                }
                 }
             }
         }
@@ -151,9 +148,7 @@ kernel_norm_source = \
     int gtid = j * Ly + i;  
 
     // shared memory for IMG and NORM
-    extern __shared__ float s_IMG[];
     extern __shared__ float s_NORM[];
-    s_IMG[stid] = IMG[gtid];
     s_NORM[stid] = NORM[gtid];
     __syncthreads();    
 
@@ -161,7 +156,7 @@ kernel_norm_source = \
 	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
 	{
         // Compute within bounds of block dimensions
-        if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+        if( tid > 0 && tid < blockDim.x && tjd > 0 && tjd < blockDim.y )
         {
             if (s_NORM[stid] != 0)
             {
@@ -173,7 +168,7 @@ kernel_norm_source = \
         {
             if (NORM[gtid] != 0)
             {        
-            IMG[gtid] /= NORM[gtid];
+                IMG[gtid] /= NORM[gtid];
             }
         }
 	}
@@ -216,7 +211,7 @@ kernel_out_source = \
             if ( (i-ss >= 0) && (i+ss < Lx) && (j-ss >= 0) && (j+ss < Ly) )
                 {
                      // Compute within bounds of block dimensions
-                    if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+                    if( tid-ss > 0 && tid+ss < blockDim.x && tjd-ss > 0 && tjd+ss < blockDim.y )
                     {
                         sum += s_IMG[stid + ii*blockDim.y + jj];
                         ksum += 1.0;          
