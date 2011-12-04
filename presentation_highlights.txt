@@ -16,18 +16,54 @@ Project Presentations
 
 Notes
 
-+ The current issues facing Astronomers are no longer telescope size or image resolution.  One the biggest issues is an overabundance of data and how to handle all of it.  This is where parallel processing may serve as a solution for certain applications.  
++ DELETE, MOOT POINT. ( The current issues facing Astronomers are no longer telescope size or image resolution.  One the biggest issues is an overabundance of data and how to handle all of it.  This is where parallel processing may serve as a solution for certain applications. )
 
-+ One such application that could benefit from parallelization is a CPU based application used by the Chandra X-Ray Observatory.   The algorithm adaptively smooths the data that preserves small scale features while larger features get soothed out over a larger area.  
 
-+ This is a computationally intensive application that lends itself beautifully to GPU methods.  
 
-+ Using the traditional methods the Chandra data set needs to be broken down into smaller pieces to make the execution occur in a timely manner, on the order of 30+ minutes.  With a GPU implementation, the dataset no longer needs to be split apart.  An entire observation can be smoothed in XXXXINSERT TIMEXXXX time.   
 
-+ SHOW IMAGES OF BEFORE AND AFTER SMOOTHING
 
-+ The speedup produced from the GPU implementation compared to the CPU implementation was XXXXXXXXXXXXINSERT VALUESXXXXXXXXXXXX
+
+
+++ EXPLAIN WHAT ADAPTIVE SMOOTHING IS AND WHY IT'S AN INTERESTING GPU PROBLEM
+    ++ The algorithm adaptively smooths the data and preserves small scale features while larger
+        features get soothed out over a larger area.  
+    ++ A diagram or visual showing how the smoothing stencil works
+    ++ Explain Threshold and RadMax parameters
+    ++ Emphasize that there is a need for 3 for loops which is costly for serial, but highly optimiziable in GPU
+    ++ This is a computationally intensive application that lends itself beautifully to GPU methods.  
+    ++ One such application that would have tremendous benefit is a NASA open-source toolkit for astronomers to
+        analyze data collected from Chandra X-Ray Satellite Observatory. 
+
+++ CURRENT CPU BOTTLENECK VS. GPU FUTURE 
+    ++ CLARIFY AND MAKE SHORTER? (Using the traditional methods the Chandra data set needs to be broken down into smaller pieces to make the execution occur in a timely manner, on the order of 30+ minutes.  With a GPU implementation, the dataset no longer needs to be split apart.  An entire observation can be smoothed in XXXXINSERT TIMEXXXX time.)
+
++ SHOW IMAGES OF BEFORE AND AFTER SMOOTHING    
+    ++ Fig 1 32x32
+    ++ Fig 2 64x62
+    ++ Fig 3 128x128
+    ++ Fig 4 256x256
+    ++ Fig 5 8192x8192
+    
++ SHOW SCREENSHOT OF DEBUG OUTPUT
+    ++ Screenshot of IMG
+    ++ Screenshot of NORM
+    ++ Screenshot of BOX
+        > Helps visualize why we need to run 3 kernels
+
++ SHOW RELATIVE ERROR CHECK
+    ++ Show table, or screenshot
+    
++ SHOW JACKPOT SHOT -> SPEEDUP PLOT
+    ++ The speedup produced from the GPU implementation compared to the CPU implementation
+    ++ Mention that we used MPI/CUDA to help run multiple computations simultaneously
 
 + Insights gained
+    ++ GPU pwns CPU
+    ++ Shared memory is not always better than Global memory. Inconsistent times because each pixel has a varying box
+        stencil size that reach out of bounds. We read and write once from global, so not much cost savings from
+        initializing shared memory
 
-+ Parallel applications lend itself to be one of the solutions to one of the biggest problems facing modern Astronomers.  The data doesn't stand a chance.  
++ Final point
+    ++ Adaptive smoothing is a simple example showing how "dumb" CPU implementations can be made into "smart"
+        GPU implementations. Advisor said not only applications in astronomy, but also medical imagery, animation
+        rendering, and military applications.
