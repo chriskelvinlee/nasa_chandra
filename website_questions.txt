@@ -94,10 +94,12 @@ Preparing The Data
     
     0. Preprocessing Data
     1. Re-implementing serial version from C into Python
-	We wanted to use Python for seamless integration with the tools/ideas learned in the course.  
-        We had to have 3 for-loop kernels to match CIAO source code. The Gaussian
-        weights were relatively easy to implement in python in lines x and y
-        of 'image_adapt_serial_gaussian.py.'
+	a. We wanted to use Python for seamless integration with the tools/ideas learned in the course. 
+	The important features we chose to implement from the dmimgadapt() algorithm were the following:
+		+ For each pixel in an input image, find the smallest box such that the sum of the pixels inside the box is at least some user defined threshold value.  If the size of the box reaches a user defined maximum size, we move on to the next pixel.
+		+  Using the box size determined from (a), we create a properly normalized output image where the sum(input pixels) = sum(output pixels)
+	b. Upon initially looking over the dmimgadapt() tool, we initially thought the serial algorithm would be implemented using MPI techniques similar to the Wave Equation Problem encountered in our HW3 problem set.  But after further review of the algorithm, we noticed that the pixel values are static and therefore landed itself to GPU implementation.  
+        c. We had to have 3 for-loop kernels to match dmimgadapt() source code. The Gaussian weights were relatively easy to implement in python in lines x and y of 'image_adapt_serial_gaussian.py.'
     2. Implementing GPU version
         
         a. Implemented 3 kernels, minimized CPU to GPU read/writes but having all
