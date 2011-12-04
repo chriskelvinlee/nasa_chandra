@@ -1,57 +1,50 @@
 import numpy as np
+import os
 from pylab import *
 from mpi4py import MPI
 import pycuda.autoinit
 import pycuda.driver as cu
 import pycuda.compiler as nvcc
 from pycuda import gpuarray
-from pycuda.reduction import ReductionKernel
-from pycuda.elementwise import ElementwiseKernel
 import time
 
-def parallel_smooth(filename, rank, size, comm):
-    
-    # Read image
-    file_name          = filename
+def parallel_smooth(file_name, rank, size, comm):
+    # Parameter
+    Threshold   = np.int32(1)
+    MaxRad      = np.int32(10)
+
+    # Setup input file
     IMG_rgb = imread(file_name)
-    IMG     = array( IMG_rgb[:,:,0] )
-    
+    IMG = array( IMG_rgb[:,:,0] )
+
     # Get image data
-    Lx             = np.int32( IMG.shape[0] )
-    Ly              = np.int32( IMG.shape[1] )
-    
+    Lx = np.int32( IMG.shape[0] )
+    Ly = np.int32( IMG.shape[1] )
+
     # Allocate memory
-    RAD = np.zeros((Lx, Ly), dtype=np.float64)
-    NORM = np.zeros((Lx, Ly), dtype=np.float64)
-    OUT = np.zeros((Lx, Ly), dtype=np.float64)
-    
-    # Array to hold updated values
-    # This array can be used to implement the weight sums
-    # for example gaussian, tophat, cone
-    # currently set to one for general use.
-    ww = 1.0#np.ones((Lx, Ly), dtype=np.float64)
-    
-    # Parameters
-    Threshold = 30.0
-    MaxRad = 30.0
-    
+    # Max box smoothing stencil
+    BOX = np.zeros((Lx, Ly), dtype=np.float32)
+    # normalized array
+    NORM = np.zeros((Lx, Ly), dtype=np.float32)
+    # output array
+    OUT = np.zeros((Lx, Ly), dtype=np.float32)
+
     # Execution configuration
-    TPBx	= int( 32 )                # Sweet spot num of threads per block
-    TPBy    = int( 32 )                # 32*32 = 1024 max
-    nBx     = int( Ly/TPBx )        # Num of thread blocks
+    TPBx	= int( 32 )       
+    TPBy    = int( 32 )           
+    nBx     = int( Ly/TPBx )
     nBy     = int( Lx/TPBy ) 
-    
-    ## TO DO ##   
-    # I currently don't have anything coded in the kernels, just outline
+
+
     #########
-    
-    #kernel for first part of algorithm that performs the smoothing
-    ## TO DO ##   
-    # Implement The kernel
+    ## SMOOTHING KERNEL ##   
+    # First part of algorithm performs adaptive smoothing
+    #
     #########
     kernel_smooth_source = \
     """
-        __global__ void smoothingFilter( float* next_im, float* curr_im, int Lx, int Ly )
+        __global__ void smoothingFilter(int Lx, int Ly, int Threshold, int MaxRad, 
+            float* IMG, float* BOX, float* NORM)
         {
         // Indexing
         int tid = threadIdx.x;
@@ -60,38 +53,73 @@ def parallel_smooth(filename, rank, size, comm):
         int j = blockIdx.y * blockDim.y + tjd;
         int stid = tjd * blockDim.x + tid;
         int gtid = j * Ly + i;  
-        
-        extern __shared__ float s_curr_im[];
-        s_curr_im[stid] = curr_im[gtid];
+    
+        // Smoothing params
+        float qq    = 1.0;
+        float sum   = 0.0;
+        float ksum  = 0.0;
+        float ss    = qq;
+
+        // Shared memory
+        extern __shared__ float s_IMG[];
+        s_IMG[stid] = IMG[gtid];
         __syncthreads();
-        
+    
         // Compute all pixels except for image border
-    	if ( i > 0 && i < Ly-1 && j > 0 && j < Lx-1 )
+    	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
     	{
-            // Compute within bounds of block dimensions
-            if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
-            {
-                //perform calculations here
+    	    // Continue until parameters are met
+    	    while (sum < Threshold && qq < MaxRad)
+    	    {
+    	        ss = qq;
+    	        sum = 0.0;
+    	        ksum = 0.0;
+	        
+                // Normal adaptive smoothing
+                for (int ii = -ss; ii < ss+1; ii++)
+                {
+                    for (int jj = -ss; jj < ss+1; jj++)
+                    {
+                        // Smoothing stencil must be within bounds
+                        if ( (i-ss >= 0) && (i+ss < Ly) && (j-ss >= 0) && (j+ss < Lx) )
+                        {
+                                sum += IMG[gtid + ii*Ly + jj];
+                                ksum += 1.0;                           
+                        }
+                    }
+                }
+                qq += 1;
             }
-            // Compute block borders with global memory
-            else
+            // Store max size of box stencil
+            BOX[gtid] = ss;
+
+            // Determine the normalization for each box
+            for (int ii = -ss; ii < ss+1; ii++)
             {
-                //perform calculations
+                for (int jj = -ss; jj < ss+1; jj++)
+                {
+                    if ( (i-ss >= 0) && (i+ss < Ly) && (j-ss >= 0) && (j+ss < Lx) )
+                    {
+                        if (ksum != 0)
+                        {
+                            NORM[gtid + ii*Ly + jj] +=  1.0 / 2;
+                        }
+                    }
+                }
             }
     	}
-    	// Swap references to the images by replacing value
     	__syncthreads();
-    	curr_im[gtid] = next_im[gtid];
-        
+
         }
-        """
-    #kernel for the second part of the algorithm that normalizes the data
-    ## TO DO ##   
-    # Implement The kernel
+        """    
+    #########
+    ## NORMALIZING KERNEL ##   
+    # Second part of the algorithm applies smoothing
+    #
     #########
     kernel_norm_source = \
     """
-        __global__ void normalizeFilter( float* next_im, float* curr_im, int Lx, int Ly )
+        __global__ void normalizeFilter(int Lx, int Ly, float* IMG, float* NORM )
         {
         // Indexing
         int tid = threadIdx.x;
@@ -100,39 +128,35 @@ def parallel_smooth(filename, rank, size, comm):
         int j = blockIdx.y * blockDim.y + tjd;
         int stid = tjd * blockDim.x + tid;
         int gtid = j * Ly + i;  
-        
-        extern __shared__ float s_curr_im[];
-        s_curr_im[stid] = curr_im[gtid];
-        __syncthreads();
-        
+
+        // Shared memory for IMG and NORM
+        extern __shared__ float s_IMG[];
+        extern __shared__ float s_NORM[];
+        s_IMG[stid] = IMG[gtid];
+        s_NORM[stid] = NORM[gtid];
+        __syncthreads();    
+
         // Compute all pixels except for image border
-    	if ( i > 0 && i < Ly-1 && j > 0 && j < Lx-1 )
+    	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
     	{
-            // Compute within bounds of block dimensions
-            if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+            if (NORM != 0)
             {
-                //perform calculations here
-            }
-            // Compute block borders with global memory
-            else
-            {
-                //perform calculations
+                // Access from global memory
+                IMG[gtid] /= NORM[gtid];
             }
     	}
-    	// Swap references to the images by replacing value
     	__syncthreads();
-    	curr_im[gtid] = next_im[gtid];
-        
         }
-        """
-    
-    #kernel for the last part of the algorithm that creates the output image
-    ## TO DO ##   
-    # Implement The kernel
+    """
+
+    #########
+    ## OUTPUT KERNEL ##   
+    # kernel for the last part of the algorithm that creates the output image
+    #
     #########
     kernel_out_source = \
     """
-        __global__ void outFilter( float* next_im, float* curr_im, int Lx, int Ly )
+        __global__ void outFilter( int Lx, int Ly, float* IMG, float* BOX, float* OUT )
         {
         // Indexing
         int tid = threadIdx.x;
@@ -141,97 +165,109 @@ def parallel_smooth(filename, rank, size, comm):
         int j = blockIdx.y * blockDim.y + tjd;
         int stid = tjd * blockDim.x + tid;
         int gtid = j * Ly + i;  
-        
-        extern __shared__ float s_curr_im[];
-        s_curr_im[stid] = curr_im[gtid];
+
+        // Smoothing params
+        float ss    = BOX[gtid];
+        float sum   = 0.0;
+        float ksum  = 0.0;
+
+        extern __shared__ float s_IMG[];
+        s_IMG[stid] = IMG[gtid];
         __syncthreads();
-        
+
         // Compute all pixels except for image border
-    	if ( i > 0 && i < Ly-1 && j > 0 && j < Lx-1 )
+    	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
     	{
-            // Compute within bounds of block dimensions
-            if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
+            for (int ii = -ss; ii < ss+1; ii++)
             {
-                //perform calculations here
+                for (int jj = -ss; jj < ss+1; jj++)
+                {
+                if ( (i-ss >= 0) && (i+ss < Ly) && (j-ss >= 0) && (j+ss < Lx) )
+                    {
+                            sum += IMG[gtid + ii*Ly + jj];
+                            ksum += 1.0;                   
+                    }
+                }
             }
-            // Compute block borders with global memory
-            else
-            {
-            //perform calculations
-            }
-    	}
-    	// Swap references to the images by replacing value
-    	__syncthreads();
-    	curr_im[gtid] = next_im[gtid];
-        
+    	}  
+        if ( ksum != 0 )
+        {
+            OUT[gtid] = sum / ksum;
         }
-        """
-    
+    	__syncthreads();
+        }
+    """
+
     # Initialize kernel
     smoothing_kernel = nvcc.SourceModule(kernel_smooth_source).get_function("smoothingFilter")
     normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
     out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
-    
+
     total_start_time = time.time()
     setup_start_time = time.time()
-    
+
     # Allocate memory and constants
     smem_size   = int(TPBx*TPBy*4)
-    curr_im     = array( IMG )
-    next_im     = array( IMG )
-    
-    # Copy image to device
-    curr_im_device = gpuarray.to_gpu(curr_im)
-    next_im_device = gpuarray.to_gpu(next_im)
-    
-    setup_stop_time = time.time()
-        
-    # Calculate mean on device
-    m_array = gpuarray.to_gpu(curr_im)
-    sum = gpuarray.sum(m_array).get()
-        
-    kernel_start_time = cu.Event()
-    kernel_stop_time = cu.Event()
-        
-    kernel_start_time.record()
 
-    ## TO DO ##   
-    # I am not really sure if this is how you would run multiple kernels
-    # Need to ensure that the input/output variables are correct to pass to 
-    # the next kernel
-    #########
-    
-    # Run the CUDA kernel with the appropriate inputs and outputs
-    ## TO DO ##   
-    # This kernel will utilize the IMG and modify the RAD and NORM
-    #########
-    smoothing_kernel(next_im_device, curr_im_device, Lx, Ly, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
-    # Run the CUDA kernel with the appropriate inputs and outputs
-    ## TO DO ##   
-    # This kernel will utilize the NORM and modify the IMG
-    #########
-    normalize_kernel(next_im_device, curr_im_device, Lx, Ly, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
-    # Run the CUDA kernel with the appropriate inputs and outputs
-    ## TO DO ##   
-    # This kernel will utilize the RAD and IMG and modify the OUT
-    #########
-    out_kernel(next_im_device, curr_im_device, Lx, Ly, block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
-    
-    kernel_stop_time.record()
-    kernel_stop_time.synchronize()
-        
-    # Copy image to host
-    curr_im = curr_im_device.get()
-    
+    # Copy image to device
+    IMG_device          = gpuarray.to_gpu(IMG)
+    BOX_device          = gpuarray.to_gpu(BOX)
+    NORM_device         = gpuarray.to_gpu(NORM)
+    OUT_device          = gpuarray.to_gpu(OUT)
+
+    setup_stop_time = time.time()
+    smth_kernel_start_time   = cu.Event()
+    smth_kernel_stop_time    = cu.Event()
+    norm_kernel_start_time   = cu.Event()
+    norm_kernel_stop_time    = cu.Event()
+    out_kernel_start_time    = cu.Event()
+    out_kernel_stop_time     = cu.Event()
+
+    ##########
+    # The kernel will convolve the image with a gaussian weighted sum
+    # determine the BOX size that allows the sum to reach either the maxRad or 
+    # threshold values
+    # This kernel will utilize the IMG and modify the BOX and NORM
+    ##########
+
+    smth_kernel_start_time.record()
+    smoothing_kernel(Lx, Ly, Threshold, MaxRad, IMG_device, BOX_device, NORM_device,
+        block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+    smth_kernel_stop_time.record()
+
+    ##########
+    # This kernel will normalize the image with the value obtained from first kernel
+    # Normalizing kernel will utilize the NORM and modify the IMG
+    ##########
+
+    norm_kernel_start_time.record()
+    normalize_kernel(Lx, Ly, IMG_device, NORM_device,
+        block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+    norm_kernel_stop_time.record()
+
+    ##########
+    # This will resmooth the data utilizing the new normalized image
+    # This kernel will utilize the BOX and IMG_norm and modify the OUT
+    ##########
+    out_kernel_start_time.record()
+    out_kernel(Lx, Ly, IMG_device, BOX_device, OUT_device,
+        block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
+    out_kernel_stop_time.record()
+
     total_stop_time = time.time()
-    imsave('{}_smoothed.png'.format(filename), curr_im, cmap=cm.gray, vmin=0, vmax=1)
-    
+
+    # Copy image to host
+    IMG_out = OUT_device.get()
     # Print results & save
-    total_time  = (total_stop_time - total_start_time)
-    setup_time  = (setup_stop_time - setup_start_time)
-    ker_time    = (kernel_start_time.time_till(kernel_stop_time) * 1e-3)
+    imsave('{}_smoothed_gpu.png'.format(os.path.splitext(file_name)[0]), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
     
-    results = [total_time, setup_time, ker_time]
+    total_time      = (total_stop_time - total_start_time)
+    setup_time      = (setup_stop_time - setup_start_time)
+    smth_ker_time   = (smth_kernel_start_time.time_till(smth_kernel_stop_time) * 1e-3)
+    norm_ker_time   = (norm_kernel_start_time.time_till(norm_kernel_stop_time) * 1e-3)
+    out_ker_time    = (out_kernel_start_time.time_till(out_kernel_stop_time) * 1e-3)
+        
+    results = [total_time, setup_time, smth_ker_time, norm_ker_time, out_ker_time]
     
     ### SEND
     comm.send(results, dest = 0)
@@ -241,28 +277,48 @@ def parallel_smooth(filename, rank, size, comm):
 ########################
 
 # Initialize MPI constants
+OMPI_MCA_mpi_warn_on_fork=0
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
 print "Hello from process %d of %d" % (rank,size)
 
-filenames = ['114_ccd7.jpg', '321_ccd7.jpg', '7417_ccd3.jpg', '11759_ccd3.jpg']
+filenames = ['extrap_data/11759_ccd3/11759_32x32.png',
+                'extrap_data/11759_ccd3/11759_64x64.png',
+                'extrap_data/11759_ccd3/11759_128x128.png',
+                'extrap_data/11759_ccd3/11759_256x256.png',
+                'extrap_data/11759_ccd3/11759_512x512.png']
 
 # Send filenames as data
 parallel_smooth(filenames[rank], rank, size, comm)
 
 
+
+
 # Print rank, mean, variance
 if rank == 0:
+    f = open('output.txt', 'w')
     for k in range(0, size):
         results = comm.recv(source = k) # Receive data from processes
+        # Print to output file
+        print >>f,"***Rank %d***" % k
+        print >>f,'{}_smoothed_gpu.png'.format(os.path.splitext(filenames[k])[0])
+        print >>f, "Total Time: %f"                  % results[0]
+        print >>f, "Setup Time: %f"                  % results[1]
+        print >>f, "Kernel (Smooth) Time: %f"        % results[2]
+        print >>f, "Kernel (Norm) Time: %f"          % results[3]
+        print >>f, "Kernel (Output) Time: %f"        % results[4]
+        print >>f, "\n"
         print "***Rank %d***" % k
-        #print results
-        print "Total Time: %f"      % results[0]
-        print "Setup Time: %f"      % results[1]
-        print "Kernel Time: %f"     % results[2]
+        print '{}_smoothed_gpu.png'.format(os.path.splitext(filenames[k])[0])
+        # Print to terminal
+        print "Total Time: %f"                  % results[0]
+        print "Setup Time: %f"                  % results[1]
+        print "Kernel (Smooth) Time: %f"        % results[2]
+        print "Kernel (Norm) Time: %f"          % results[3]
+        print "Kernel (Output) Time: %f"        % results[4]
         print "\n"
-
+    f.close()
 
 ########################
 #  END OF MPI CODE

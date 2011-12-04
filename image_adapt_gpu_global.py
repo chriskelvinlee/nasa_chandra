@@ -19,12 +19,16 @@ except:
     print "Usage:",sys.argv[0], "infile maxrad threshold"; sys.exit(1)
 """
 
+#Debug value, if 1 print out debug text file
+DEBUG = 1
+
 file_name   = 'extrap_data/11759_ccd3/11759_32x32.png'
+
+# Parameter
 Threshold   = np.int32(1)
 MaxRad      = np.int32(10)
 
-
-# setup input file
+# Setup input file
 IMG_rgb = imread(file_name)
 IMG = array( IMG_rgb[:,:,0] )
 
@@ -33,7 +37,7 @@ Lx = np.int32( IMG.shape[0] )
 Ly = np.int32( IMG.shape[1] )
 
 # Allocate memory
-# size of the box needed to reach the threshold value or maxrad value
+# Max box smoothing stencil
 BOX = np.zeros((Lx, Ly), dtype=np.float32)
 # normalized array
 NORM = np.zeros((Lx, Ly), dtype=np.float32)
@@ -41,15 +45,16 @@ NORM = np.zeros((Lx, Ly), dtype=np.float32)
 OUT = np.zeros((Lx, Ly), dtype=np.float32)
 
 # Execution configuration
-TPBx	= int( 32 )                # Sweet spot num of threads per block
-TPBy    = int( 32 )                # 32*32 = 1024 max
-nBx     = int( Ly/TPBx )           # Num of thread blocks
+TPBx	= int( 32 )       
+TPBy    = int( 32 )           
+nBx     = int( Ly/TPBx )
 nBy     = int( Lx/TPBy ) 
 
 
-#kernel for first part of algorithm that performs the smoothing
-## TO DO ##   
-# Implement The kernel
+#########
+## SMOOTHING KERNEL ##   
+# First part of algorithm performs adaptive smoothing
+#
 #########
 kernel_smooth_source = \
 """
@@ -85,11 +90,12 @@ kernel_smooth_source = \
 	        sum = 0.0;
 	        ksum = 0.0;
 	        
-            // Normal adaptive smoothing (w/o gaussian sum)
+            // Normal adaptive smoothing
             for (int ii = -ss; ii < ss+1; ii++)
             {
                 for (int jj = -ss; jj < ss+1; jj++)
                 {
+                    // Smoothing stencil must be within bounds
                     if ( (i-ss >= 0) && (i+ss < Ly) && (j-ss >= 0) && (j+ss < Lx) )
                     {
                             sum += IMG[gtid + ii*Ly + jj];
@@ -99,8 +105,8 @@ kernel_smooth_source = \
             }
             qq += 1;
         }
+        // Store max size of box stencil
         BOX[gtid] = ss;
-        __syncthreads();
 
         // Determine the normalization for each box
         for (int ii = -ss; ii < ss+1; ii++)
@@ -111,7 +117,7 @@ kernel_smooth_source = \
                 {
                     if (ksum != 0)
                     {
-                    NORM[gtid + ii*Ly + jj] +=  1.0 / 2;
+                        NORM[gtid + ii*Ly + jj] +=  1.0 / 2;
                     }
                 }
             }
@@ -121,9 +127,10 @@ kernel_smooth_source = \
 
     }
     """    
-#kernel for the second part of the algorithm that normalizes the data
-## TO DO ##   
-# Implement The kernel
+#########
+## NORMALIZING KERNEL ##   
+# Second part of the algorithm applies smoothing
+#
 #########
 kernel_norm_source = \
 """
@@ -137,7 +144,7 @@ kernel_norm_source = \
     int stid = tjd * blockDim.x + tid;
     int gtid = j * Ly + i;  
 
-    // shared memory for IMG and NORM
+    // Shared memory for IMG and NORM
     extern __shared__ float s_IMG[];
     extern __shared__ float s_NORM[];
     s_IMG[stid] = IMG[gtid];
@@ -149,6 +156,7 @@ kernel_norm_source = \
 	{
         if (NORM != 0)
         {
+            // Access from global memory
             IMG[gtid] /= NORM[gtid];
         }
 	}
@@ -156,9 +164,10 @@ kernel_norm_source = \
     }
 """
 
-#kernel for the last part of the algorithm that creates the output image
-## TO DO ##   
-# Implement The kernel
+#########
+## OUTPUT KERNEL ##   
+# kernel for the last part of the algorithm that creates the output image
+#
 #########
 kernel_out_source = \
 """
@@ -246,19 +255,10 @@ smth_kernel_stop_time.record()
 # Normalizing kernel will utilize the NORM and modify the IMG
 ##########
 
-# Copy normalization factor to host and box size array
-# No need because it is already stored on device
-# NORM = NORM_device.get()
-# BOX = BOX_device.get()
-
 norm_kernel_start_time.record()
 normalize_kernel(Lx, Ly, IMG_device, NORM_device,
     block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 norm_kernel_stop_time.record()
-
-# Copy image to host and send to output kernel
-# No need because it is already stored on device
-# IMG_norm = IMG_norm_device.get()
 
 ##########
 # This will resmooth the data utilizing the new normalized image
@@ -269,29 +269,29 @@ out_kernel(Lx, Ly, IMG_device, BOX_device, OUT_device,
     block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 out_kernel_stop_time.record()
 
-# Copy image to host and 
-IMG_out = OUT_device.get()
-BOX_out = BOX_device.get()
-NORM_out = NORM_device.get()
-
-
-
 total_stop_time = time.time()
-imsave('{}_smoothed_gpu.png'.format(file_name), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
+
+# Copy image to host
+IMG_out = OUT_device.get()
+
 # Debug
-f = open('debug_gpu.txt', 'w')
-set_printoptions(threshold='nan')
-print >>f,'IMG'
-print >>f, str(IMG).replace('[',' ').replace(']', ' ')
-print >>f,'OUTPUT'
-print >>f, str(IMG_out).replace('[',' ').replace(']', ' ')
-print >>f,'BOX'
-print >>f, str(BOX_out).replace('[',' ').replace(']', ' ')
-print >>f,'NORM'
-print >>f, str(NORM_out).replace('[',' ').replace(']', ' ')
-f.close()
+if(DEBUG):
+    BOX_out = BOX_device.get()
+    NORM_out = NORM_device.get()
+    f = open('debug_gpu.txt', 'w')
+    set_printoptions(threshold='nan')
+    print >>f,'IMG'
+    print >>f, str(IMG).replace('[',' ').replace(']', ' ')
+    print >>f,'OUTPUT'
+    print >>f, str(IMG_out).replace('[',' ').replace(']', ' ')
+    print >>f,'BOX'
+    print >>f, str(BOX_out).replace('[',' ').replace(']', ' ')
+    print >>f,'NORM'
+    print >>f, str(NORM_out).replace('[',' ').replace(']', ' ')
+    f.close()
 
 # Print results & save
+imsave('{}_smoothed_gpu.png'.format(file_name), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
 total_time      = (total_stop_time - total_start_time)
 setup_time      = (setup_stop_time - setup_start_time)
 smth_ker_time   = (smth_kernel_start_time.time_till(smth_kernel_stop_time) * 1e-3)

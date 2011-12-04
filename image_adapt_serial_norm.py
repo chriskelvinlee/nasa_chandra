@@ -32,7 +32,7 @@ OUT = np.zeros((Lx, Ly), dtype=np.float32)
 
 # Set Parameters
 Threshold = np.int32(1)
-MaxRad = np.int32(10)
+MaxRad = np.int32(4)
 
 setup_stop_time = time.time()
 kernel_start_time = time.time()
@@ -113,7 +113,7 @@ if(DEBUG):
     print >>f,'IMG'
     #print >>f, str(IMG).replace('[',' ').replace(']', ' ')
     print >>f,'OUTPUT'
-    print >>f, str(OUT).replace('[',' ').replace(']', ' ')
+    #print >>f, str(OUT).replace('[',' ').replace(']', ' ')
     print >>f,'BOX'
     print >>f, str(BOX).replace('[',' ').replace(']', ' ')
     print >>f,'NORM'
