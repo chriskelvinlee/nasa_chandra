@@ -1,9 +1,0 @@
-No module named pycuda.autoinit
-module load packages/pycuda/2011.1.2
-
-
-Example Gaussian Sum
->>> ww
-array([[ 0.13533528,  0.36787944,  0.13533528],
-       [ 0.36787944,  1.        ,  0.36787944],
-       [ 0.13533528,  0.36787944,  0.13533528]])
