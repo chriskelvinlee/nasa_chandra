@@ -1,23 +1,7 @@
 1.  What is the problem you are trying to solve with this application?
-	A full resolution image file of a typical Chandra observation using the
-	ACIS instrument is 8192x8192 pixels.  Due to time constraints and
-	calculation complexities of algorithms that analyze the data, sometimes
-	concessions need to be made.  For example, CIAO provides a routine,
-	dmimgadapt() (http://goo.gl/qWBqe), that takes an image as input then
-	adaptively smooths the image.  It does this by building a 2D box around
-	each pixel until a user defined threshold is met, or a user defined max
-	box size is encountered.  The complexity of the algorithm in worst case
-	scenario is O(n^4).  Thus, with a large image, it can take days to achieve
-	the output image. The data is usually scaled, or binned, by a factor
-	of 8 in order to obtain a more manageable image size of 1024x1024.
-	However, by doing so some of the finer detail of the image is lost.
-	With this configuration, a typical file may take 30 minutes to produce
-	an output file.  The goal of the project is to modify the dmimgadapt()
-	routine from C-code to a more general python implementation.  Then we
-	will implement a GPU version of the algorithm.  When finished, we want
-	to drastically improve the runtime of the algorithm, via the GPU, and
-	test the ability to run the algorithm on a full resolution 8192x8192
-	image.
+	###########
+	## ANSWER MOVED TO THE WEBSITE
+	###########
 
 
 2.  Describe your data in detail: where did it come from, how did you acquire
@@ -28,6 +12,9 @@ it, what does it mean, etc.
 
 3.  Describe your program design and why you chose the features you did.
 
+	###########
+	## Needed
+	###########
     Executive Summary:
     
     0. Preprocessing Data
@@ -50,43 +37,47 @@ it, what does it mean, etc.
 4.  How do you use your application (mouse and keyboard functions, input/output,
 etc)?
 	Serial Version:
-	In order to run the serial version we ended up having to hard code some of the user defined values as there seemed to be an issue reading in command line arguments on the Resonance Cluster.  
-	So near the top of the file is the 'file_name' variable we use to to specify which image we wish to run through the algorithm.  
-	We then have our 'Threshold' and 'MaxRad' variables.  These are the user defined variables that specify the value of the pixels in the created box, Threshold, and the maximum size box to attempt to reach the threshold value, MaxRad.  
-	The output image is created in the same directory as the input image.  We remove the extension of the input file and then append '_smoothed_serial.png' to name.  
-	While running our program on the Resonance cluster:
-	%: gpu-login
-	%: cd to base directory of our project
-	%: python image_adapt_serial_norm.py
+	###########
+	## ANSWER MOVED TO THE WEBSITE
+	###########
 
 	GPU Version:
-
+	###########
+	## Needed
+	###########
 
 5.  What is the performance of your code? What speedup and efficiency did you
 achieve? What optimizations did you implement to achieve this speedup?
+	###########
+	## Needed
+	###########
 
 6.  What interesting insights did you gain from this project?
 	Danny:
-	I know have a deeper understanding of the dmimgadapt() CIAO tool.  Before this project I had never used it before at work.  I now see the great benefits of using GPUs to analyze real life data.  When I enrolled in this course I wasn't exactly sure how it would translate to the types of data I deal with and algorithms we implement at work, now I see how much more quickly and efficiently things can be handled with parallel processing.  Whether it comes in the form of GPU or MPI, there is great benefit from utilizing these approaches in the astronomy field.   
+	###########
+	## ANSWER MOVED TO THE WEBSITE
+	###########  
 
 	Chris:
-	Insights are...
+	###########
+	## Needed
+	###########
 
 7.  What extensions and improvements can you suggest?
-	While implementing the project we ran into difficulty implementing a weighted sum approach.  We had a serial version coded up utilizing a gaussian weighted sum, then when we were coding the parallel version we ran into difficulties.  What took two lines to achieve in Python, was seemingly going to take 15-20 lines.  So we deferred that as an item we would like to implement given more time.  In addition to the gaussian weighted sum, there are other methods we could implement, like cone, boxcar, tophat, or mexican hat weighted sum approaches.  
-	In order to make the input files easier for us to deal with in python and with the installed packages on Resonance, we decided to convert the astronomical data from fits files ultimately to png files.  An improvement we could deliver would be to handle the fits file format directly, read in the data, perform our adaptive smoothing algorithm, then write out a new fits file.  This would also allow for a more one to one comparison between the C code implementation from CIAO tools to the Python implementation we used.
-	The original C implementation has the option to output some of the intermediate data files.  The user can specify to output a file of all of the sum values, a file of all the normalization values and also all the radius/box size values.  
-	The ultimate goal of the project would be to incorporate it into the CIAO data model.  This would allow for seamless integration into data analysis for x-ray astronomers with access to a GPU.  The CIAO Data Model (DM) is a versatile interface used by CIAO to examine and manipulate standard format data files (e.g Fits, ascii).  (http://goo.gl/QMXx0)  This would greatly reduce the time for data analysis.
+	###########
+	## ANSWER MOVED TO THE WEBSITE
+	###########
 	 
 
 8.  What did you most enjoy about working on this project? What was the most
 challenging aspect? What was the most frustrating? What would you do differently
 next time?
 	Danny:
-	I enjoyed being able to apply the concepts learned in the course to things I see at work.  Many times in past courses I have taken, the projects end up being more of an academic exercise than real life applications.  I see now why the instructors requesting people pick something they found interesting to work on because I did spent a lot of time on it and it was nice to know I can apply this knowledge to future projects outside of the course environment.  
-	The most challenging aspect for me was to translate the existing C code with all of the specific "CIAOisms" and create a Python version of the code.  Luckily, my boss, Kenny Glotfelty, provided a basic pseudo code representation of the algorithm.  However, there were still challenges creating a pythonic version of a c algorithm.  I am sure there are more pythonic ways to do some of the computations we ended up doing.  So part of the frustration was learning the ins and outs of Python and realizing that somethings are not meant to have a direct c to python conversion.  There are times when Python does things differently and it took time to learn and figure out what those things are.  
-	One of the most frustrating things that I came across ended up being a simple issue of the type of input file we were using.  CIAO provided us a tool called dmimg2jpg, so I used that to create what I thought was a useful input jpg image.  I thought I had the serial version of the code working wonderfully but ended up with a terrible output image.  So I went through the algorithm line by line.  When I got to the top I thought that surely the input file must be ok, but they way I was reading the file, the type I needed was a png file, the jpg version was not giving the same values as the png version.  So many hours were spent looking into the problem and many tears of joy occurred when the solution was found.  It always seems that the hardest bugs are the smallest ones at the end to diagnose and deal with.  
-	I think the thing that I would do differently next time would be to have a better overall understanding of the project I was dealing with going into it.  I didn't realize the complexity of the original algorithm and assumed the time window we had for the final project was ample time to work through it all.  Had I known the specific complexities of dealing with C and Python in the same time, I think I might not have bitten of more than I could chew.  I think I also would have spent more time at the beginning getting things set up to use the fits file format so we would have had the exact same data to work with as the C program.  Then we could have had a direct comparison between the C algorithm and the GPU algorithm, instead of a more generic Python version of the algorithm.   
+	###########
+	## ANSWER MOVED TO THE WEBSITE
+	###########  
 
 	Chris:
-	Enoyed...
+	###########
+	## Needed
+	###########

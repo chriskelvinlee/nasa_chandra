@@ -38,6 +38,51 @@
 <!-- <p class="date">December 07, 2006</p> -->
 <br>
 <p>inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.</p>
+    <h3>Future Improvements/Enhancements</h3>
+    <br>
+    <p>
+	While implementing the project we ran into difficulty implementing a weighted sum approach.  We had a serial version coded up utilizing a gaussian weighted sum, then when we were coding the parallel version we ran into difficulties.  What took two lines to achieve in Python, was seemingly going to take 15-20 lines.  So we deferred that as an item we would like to implement given more time.  In addition to the gaussian weighted sum, there are other methods we could implement, like cone, boxcar, tophat, or mexican hat weighted sum approaches.  
+	In order to make the input files easier for us to deal with in python and with the installed packages on Resonance, we decided to convert the astronomical data from fits files ultimately to png files.  An improvement we could deliver would be to handle the fits file format directly, read in the data, perform our adaptive smoothing algorithm, then write out a new fits file.  This would also allow for a more one to one comparison between the C code implementation from CIAO tools to the Python implementation we used.
+	The original C implementation has the option to output some of the intermediate data files.  The user can specify to output a file of all of the sum values, a file of all the normalization values and also all the radius/box size values.  
+	The ultimate goal of the project would be to incorporate it into the CIAO data model.  This would allow for seamless integration into data analysis for x-ray astronomers with access to a GPU.  The CIAO Data Model (<a href="http://goo.gl/QMXx0">DM</a>) is a versatile interface used by CIAO to examine and manipulate standard format data files (e.g Fits, ascii).  This would greatly reduce the time for data analysis.
+    
+    </p>
+    <br>
+    <h3>Insights</h3>
+    <br>
+    <h4>Danny</h4>
+    <p>
+    	I know have a deeper understanding of the dmimgadapt() CIAO tool.  Before this project I had never used it before at work.  I now see the great benefits of using GPUs to analyze real life data.  When I enrolled in this course I wasn't exactly sure how it would translate to the types of data I deal with and algorithms we implement at work, now I see how much more quickly and efficiently things can be handled with parallel processing.  Whether it comes in the form of GPU or MPI, there is great benefit from utilizing these approaches in the astronomy field. 
+    </p>
+    <br>
+    <h4>Chris</h4>
+    <br>
+    <p>
+    inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.
+    </p>
+    <br>
+    <h3>Additional Thoughts on the Project</h3>
+    <br>
+    <h4>Danny</h4>
+    <br>
+    <p>
+	I enjoyed being able to apply the concepts learned in the course to things I see at work.  Many times in past courses I have taken, the projects end up being more of an academic exercise than real life applications.  I see now why the instructors requesting people pick something they found interesting to work on because I did spent a lot of time on it and it was nice to know I can apply this knowledge to future projects outside of the course environment.
+    </p>
+    <p>
+	The most challenging aspect for me was to translate the existing C code with all of the specific "CIAOisms" and create a Python version of the code.  Luckily, my boss, Kenny Glotfelty, provided a basic pseudo code representation of the algorithm.  However, there were still challenges creating a pythonic version of a c algorithm.  I am sure there are more pythonic ways to do some of the computations we ended up doing.  So part of the frustration was learning the ins and outs of Python and realizing that somethings are not meant to have a direct c to python conversion.  There are times when Python does things differently and it took time to learn and figure out what those things are. 
+    </p>
+    <p>
+	One of the most frustrating things that I came across ended up being a simple issue of the type of input file we were using.  CIAO provided us a tool called dmimg2jpg, so I used that to create what I thought was a useful input jpg image.  I thought I had the serial version of the code working wonderfully but ended up with a terrible output image.  So I went through the algorithm line by line.  When I got to the top I thought that surely the input file must be ok, but they way I was reading the file, the type I needed was a png file, the jpg version was not giving the same values as the png version.  So many hours were spent looking into the problem and many tears of joy occurred when the solution was found.  It always seems that the hardest bugs are the smallest ones at the end to diagnose and deal with.  
+    </p>
+    <p>
+	I think the thing that I would do differently next time would be to have a better overall understanding of the project I was dealing with going into it.  I didn't realize the complexity of the original algorithm and assumed the time window we had for the final project was ample time to work through it all.  Had I known the specific complexities of dealing with C and Python in the same time, I think I might not have bitten of more than I could chew.  I think I also would have spent more time at the beginning getting things set up to use the fits file format so we would have had the exact same data to work with as the C program.  Then we could have had a direct comparison between the C algorithm and the GPU algorithm, instead of a more generic Python version of the algorithm.     
+    </p>
+    <br>
+    <h4>Chris</h4>
+    <br>
+    <p>
+        inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.
+    </p>
 
 </div>
 

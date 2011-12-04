@@ -34,10 +34,31 @@
 
 
 <div id="textarea">
-<h2>quot choro sapientem cum:</h2>
-<!-- <p class="date">December 07, 2006</p> -->
+<h2>Instructions</h2>
 <br>
-<p>inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.</p>
+    <h3>Serial Implementation</h3>
+<p>
+	In order to run the serial version we ended up having to hard code some of the user defined values as there seemed to be an issue reading in command line arguments on the Resonance Cluster.
+    <br>
+	So near the top of the file is the 'file_name' variable we use to to specify which image we wish to run through the algorithm.  
+    <br>
+	We then have our 'Threshold' and 'MaxRad' variables.  These are the user defined variables that specify the value of the pixels in the created box, Threshold, and the maximum size box to attempt to reach the threshold value, MaxRad.
+    <br>
+	The output image is created in the same directory as the input image.  We remove the extension of the input file and then append '_smoothed_serial.png' to name.  
+    <br>
+	While running our program on the Resonance cluster from the command line:
+    <br>
+	%: gpu-login
+    <br>
+	%: cd to base directory of our project
+    <br>
+	%: python image_adapt_serial_norm.py    
+    </p>
+    <br>
+    <h3>GPU Implemenation</h3>
+    <p>
+    inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.
+    </p>
 
 </div>
 
