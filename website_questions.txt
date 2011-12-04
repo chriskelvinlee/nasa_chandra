@@ -22,71 +22,9 @@
 
 2.  Describe your data in detail: where did it come from, how did you acquire
 it, what does it mean, etc.
-	The data we are using comes from the publicly available observations of
-	the Chandra X-Ray Observatory (http://goo.gl/p6W6v).  Data collected
-	from the observatory is considered proprietary for up to one year, then
-	the data becomes public.  One of the main methods to access the data is
-	through the Chandra Data Archive (http://goo.gl/BYn5i).  In our project
-	we used the following Chandra Observations, denoted by Obs ID
-	(Observation Identification Number): a. OBSID 114
-		Object: CAS A (http://goo.gl/ZVBkC)
-	b. OBSID 7417
-		Object: Cluster in NGC 2071
-	c. OBSID 321
-		Object: NGC 4472 = M49 (Galaxy in Virgo)
-	d. OBSID 11759
-		Object: J0417.5-1154 (Strong lensing cluster)
-
-Obtaining The Data
-	On the Chandra Data Archive website (http://goo.gl/ZVBkC) we used the
-	OBSID of the above observations in the "Observation ID" field.  Then hit
-	search.  This brings up the matching observations.  We then clicked the
-	"Primary Products" radio button and then "Add to Retrieval List".  We
-	then selected "Retrieve Products".  We then entered my email address to
-	be notified when the observation data was available.  When the email
-	arrived we followed the instructions on using anonymous ftp and the
-	directory location of the data to retrieve the files.  Once I had the
-	files we uncompressed the file resulting in a directory with the Obs ID
-	and a "primary" subdirectory.  The data files we want are in the
-	"primary" directory.  For our project we used the files ending with
-	evt2.fits.  These are the primary event data that have gone through two
-	levels of automated pipeline processing.  This file contains all of the
-	information regarding the data collected by ACIS that we used to create
-	our input images.
-
-Preparing The Data
-	In order to prepare the data, tools from the CIAO software suite were
-	used.  In order to install the software visit the CIAO website
-	(http://goo.gl/dsE5M).  The website gives detailed directions for
-	downloading and installing the software.
-
-	Steps for Obs ID 321: 
-	1.  We wanted to convert the evt2.fits file into
-	separate files for each ccd and bin the data by 8 using the dmimg2jpg
-	and dmkeypar tools from CIAO to determine which ccds were turned on
-	during the observation: (http://goo.gl/V4POS) (http://goo.gl/x25ZH)
-
-	%: dmkeypar "acisf00321N003_evt2.fits.gz" DETNAM echo+ 
-	%: ACIS-235678 
-	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=2][bin sky=::8]"
-		out=321_ccd2.jpg scalefun=log mode=h clob+
-	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=3][bin sky=::8]"
-		out=321_ccd3.jpg scalefun=log mode=h clob+
-	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=5][bin sky=::8]"
-		out=321_ccd5.jpg scalefun=log mode=h clob+
-	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=6][bin sky=::8]"
-		out=321_ccd6.jpg scalefun=log mode=h clob+
-	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=7][bin sky=::8]"
-		out=321_ccd7.jpg scalefun=log mode=h clob+
-	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=8][bin sky=::8]"
-		out=321_ccd8.jpg scalefun=log mode=h clob+
-
-	2.  We repeated the conversion for all four of our test Obs IDs.  
-	3.  Once we had a directory full of jpg images of all of the ccds for each of
-	the observations I did a batch convert to turn them in png files.  We did
-	this using the MAC OS tool Automator (http://goo.gl/pGeFB) to do the
-	batch convert. These png images then became our input images for our
-	python scripts.
+	###########
+	## ANSWER MOVED TO THE WEBSITE
+	###########	
 
 3.  Describe your program design and why you chose the features you did.
 

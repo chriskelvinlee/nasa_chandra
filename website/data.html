@@ -36,7 +36,97 @@
 <div id="textarea">
 <h2>Instrumentation</h2>
 <br>
-<p>The specific Chandra instrument we will be focusing on in this project is the Advanced CCD Imaging Spectrometer (ACIS). This is one of two focal plane instruments on the observatory. This instrument is an array of charged coupled devices (CCD's), which are sophisticated versions of the crude CCD's used in digital cameras. This instrument is especially useful because it can make X-ray images, and at the same time, measure the energy of each incoming X-ray. Thus scientists can make pictures of objects using only X-rays produced by a single chemical element, and so compare (for example) the appearance of a supernova remnant in light produced by oxygen ions to that of neon or iron ions. It is the instrument of choice for studying temperature variations across X-ray sources such as vast clouds of hot gas in intergalactic space, or chemical variations across clouds left by supernova explosions.  ACIS summary taken from <a href="http://chandra.si.edu/about/science_instruments.html"> here</a></p>
+<p>The specific Chandra instrument we will be focusing on in this project is the Advanced CCD Imaging Spectrometer (ACIS).  This instrument is an array of charged coupled devices more commonely known as CCDs. This instrument is especially useful because it measures the energy of each incoming X-ray. The ACIS instrument is the most commonly used of the Observatory.  Find more information regarding the ACIS instrument <a href="http://chandra.si.edu/about/science_instruments.html"> here</a>
+</p>
+    <h2>Our Datasets</h2>
+    <br>
+    <p>
+    The data we are using comes from the publicly available observations of
+	the Chandra X-Ray Observatory (http://goo.gl/p6W6v).  Data collected
+	from the observatory is considered proprietary for up to one year, then
+	the data becomes public.  One of the main methods to access the data is
+	through the <a href="http://goo.gl/BYn5i">Chandra Data Archive</a>.  In our project	we used the following Chandra Observations, denoted by Obs ID
+	(Observation Identification Number): 
+    </br>
+    a. OBSID 114
+    </br>
+    Object: <a href="http://goo.gl/ZVBkC">CAS A</a>
+    </br>
+	b. OBSID 7417
+    </br>
+    Object: Cluster in NGC 2071
+    </br>
+	c. OBSID 321
+    </br>
+    Object: NGC 4472 = M49 (Galaxy in Virgo)
+    </br>
+	d. OBSID 11759
+    </br>
+    Object: J0417.5-1154 (Strong lensing cluster)
+    </p>
+    <h2>Obtaining the Data</h2>
+    <br>
+    <p>
+    On the <a href="http://goo.gl/ZVBkC">Chandra Data Archive</a> website we used the
+	OBSID of the above observations in the "Observation ID" field.  Then hit
+	search.  This brings up the matching observations.  We then clicked the
+	"Primary Products" radio button and then "Add to Retrieval List".  We
+	then selected "Retrieve Products".  We then entered my email address to
+	be notified when the observation data was available.  When the email
+	arrived we followed the instructions on using anonymous ftp and the
+	directory location of the data to retrieve the files.  Once I had the
+	files we uncompressed the file resulting in a directory with the Obs ID
+	and a "primary" subdirectory.  The data files we want are in the
+	"primary" directory.  For our project we used the files ending with
+	evt2.fits.  These are the primary event data that have gone through two
+	levels of automated pipeline processing.  This file contains all of the
+	information regarding the data collected by ACIS that we used to create
+	our input images.
+    </p>
+    <h2>Preparing the Data</h2>
+    <br>
+    <p>
+    In order to prepare the data, tools from the CIAO software suite were
+	used.  In order to install the software visit the <a href="http://goo.gl/dsE5M">CIAO </a>website.  The website gives detailed directions for
+	downloading and installing the software.
+    </br>
+    
+	Steps for Obs ID 321:
+    </br>
+	1.  We wanted to convert the evt2.fits file into
+	separate files for each ccd and bin the data by 8 using the <a href="http://goo.gl/V4POS">dmimg2jpg</a>	and <a href="http://goo.gl/x25ZH">dmkeypar</a> tools from CIAO to determine which ccds were turned on during the observation.  These are the command line calls we used:
+    </br>
+	%: dmkeypar "acisf00321N003_evt2.fits.gz" DETNAM echo+ 
+    </br>
+	%: ACIS-235678 
+    </br>
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=2][bin sky=::8]"
+    out=321_ccd2.jpg scalefun=log
+    </br>
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=3][bin sky=::8]"
+    out=321_ccd3.jpg scalefun=log
+    </br>
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=5][bin sky=::8]"
+    out=321_ccd5.jpg scalefun=log
+    </br>
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=6][bin sky=::8]"
+    out=321_ccd6.jpg scalefun=log
+    </br>
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=7][bin sky=::8]"
+    out=321_ccd7.jpg scalefun=log
+    </br>
+	%: dmimg2jpg "acisf00321N003_evt2.fits.gz[ccd_id=8][bin sky=::8]"
+    out=321_ccd8.jpg scalefun=log
+    </br>
+    
+	2.  We repeated the conversion for all four of our test Obs IDs.  
+    </br>
+	3.  Once we had a directory full of jpg images of all of the ccds for each of
+	the observations I did a batch convert to turn them in png files.  We did
+	this using the MAC OS tool <a href="http://goo.gl/pGeFB">Automator</a> to do the
+	batch convert. These png images then became our input images for our
+	python scripts.
+    </p>
 
 </div>
 
