@@ -1,0 +1,61 @@
+Danny Gibbs
+Harvard-Smithsonian Center for Astrophysics
+dgibbs@head.cfa.harvard.edu 
+
+Christopher Lee
+Harvard University
+cklee@college.harvard.edu 
+
+CS 205 
+Computing Foundations for Computational Science
+Final Project
+4 December 2011
+
+Project Title:
+Parallelized Adaptive Smoothing for Chandra X-Ray Observatory Datasets
+
+Our project consists of several parts:
+1. Data
+	The input png files are included in the XXXXXX directory
+2. Serial Implemenation
+	a) Output normalized by sum
+		File Name: "image_adapt_serial_norm.py"
+	b) Output normalized by weighted sum
+		File Name: "image_adapt_serial_gaussian.py"
+3. GPU Implemenation
+	a) Global Memory
+		File Name: "image_adapt_gpu_global.py"
+	b) Shared Memory
+		File Name: "image_adapt_gpu.py"
+4. MPI Implementation
+	File Name: "image_adapt_mpi.py"
+
+Notes:
+
+1. Data
+	The included data sets contain the following Chandra Observations
+	a. OBSID 114 - CAS A (http://en.wikipedia.org/wiki/Cassiopeia_A)
+	b. OBSID 7417 - Cluster in NGC 2071
+	c. OBSID 321 - NGC 4472 = M49 (Galaxy in Virgo)
+	d. OBSID 11759 - J0417.5-1154 (Strong lensing cluster)
+
+2. Serial Implemenation
+	How To Run
+
+Example Gaussian Sum
+>>> ww
+array([[ 0.13533528,  0.36787944,  0.13533528],
+       [ 0.36787944,  1.        ,  0.36787944],
+       [ 0.13533528,  0.36787944,  0.13533528]])
+
+
+3. GPU Implementation
+	How To Run
+No module named pycuda.autoinit
+module load packages/pycuda/2011.1.2
+
+4. MPI Implementation
+	How To Run
+
+No module named pycuda.autoinit
+module load packages/pycuda/2011.1.2

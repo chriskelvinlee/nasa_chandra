@@ -34,10 +34,34 @@
 
 
 <div id="textarea">
-<h2>quot choro sapientem cum:</h2>
-<!-- <p class="date">December 07, 2006</p> -->
+<h2>Preprocessing Data</h2>
 <br>
-<p>inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.</p>
+<p>
+    In order to utilize the tools and methods we learned in this course, we wanted to use data images in the png file format.  So we converted the Chandra data that original occurs in a fits file format to png files.  For more about the data we used please visit the "Data" section of the website.
+</p>
+
+<h2>Serial Implementation</h2>
+<br>
+   <h3> Re-implemented serial version from original C source into Python</h3>
+<p>
+	1. We wanted to use Python for seamless integration with the tools/ideas learned in the course.
+    <br> 
+	2. The important features we chose to implement from the dmimgadapt() algorithm were the following:
+    <br>
+		a) For each pixel in an input image, find the smallest box such that the sum of the pixels inside the box is at least some user defined threshold value.  If the size of the box reaches a user defined maximum size, we move on to the next pixel.
+        <br>
+		b) Using the box size determined from (a), we create a properly normalized output image where the sum(input pixels) = sum(output pixels)
+        <br>
+	3. Upon initially looking over the dmimgadapt() tool, we initially thought the serial algorithm would be implemented using MPI techniques similar to the Wave Equation Problem encountered in our HW3 problem set.  But after further review of the algorithm, we noticed that the pixel values are static and therefore landed itself to GPU implementation.  
+    <br>
+    4. We had to have 3 for-loop kernels to match dmimgadapt() source code. The Gaussian weights were relatively easy to implement in python in lines x and y of 'image_adapt_serial_gaussian.py.'
+</p>
+
+<h2>GPU Implementation</h2>
+<br>
+<p>
+
+</p>
 
 </div>
 
