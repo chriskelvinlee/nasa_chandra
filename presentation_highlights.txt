@@ -16,3 +16,18 @@ Project Presentations
 
 Notes
 
++ The current issues facing Astronomers are no longer telescope size or image resolution.  One the biggest issues is an overabundance of data and how to handle all of it.  This is where parallel processing may serve as a solution for certain applications.  
+
++ One such application that could benefit from parallelization is a CPU based application used by the Chandra X-Ray Observatory.   The algorithm adaptively smooths the data that preserves small scale features while larger features get soothed out over a larger area.  
+
++ This is a computationally intensive application that lends itself beautifully to GPU methods.  
+
++ Using the traditional methods the Chandra data set needs to be broken down into smaller pieces to make the execution occur in a timely manner, on the order of 30+ minutes.  With a GPU implementation, the dataset no longer needs to be split apart.  An entire observation can be smoothed in XXXXINSERT TIMEXXXX time.   
+
++ SHOW IMAGES OF BEFORE AND AFTER SMOOTHING
+
++ The speedup produced from the GPU implementation compared to the CPU implementation was XXXXXXXXXXXXINSERT VALUESXXXXXXXXXXXX
+
++ Insights gained
+
++ Parallel applications lend itself to be one of the solutions to one of the biggest problems facing modern Astronomers.  The data doesn't stand a chance.  
