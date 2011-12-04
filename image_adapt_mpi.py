@@ -261,12 +261,12 @@ def parallel_smooth(file_name, rank, size, comm):
     # Print results & save
     imsave('{}_smoothed_gpu.png'.format(os.path.splitext(file_name)[0]), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
     
-    total_time      = (total_stop_time - total_start_time)
     setup_time      = (setup_stop_time - setup_start_time)
     smth_ker_time   = (smth_kernel_start_time.time_till(smth_kernel_stop_time) * 1e-3)
     norm_ker_time   = (norm_kernel_start_time.time_till(norm_kernel_stop_time) * 1e-3)
     out_ker_time    = (out_kernel_start_time.time_till(out_kernel_stop_time) * 1e-3)
-        
+    total_time      = (total_stop_time - total_start_time) + setup_time + smth_ker_time + norm_ker_time + out_ker_time  
+            
     results = [total_time, setup_time, smth_ker_time, norm_ker_time, out_ker_time]
     
     ### SEND
@@ -283,26 +283,40 @@ size = comm.Get_size()
 rank = comm.Get_rank()
 print "Hello from process %d of %d" % (rank,size)
 
-filenames = ['extrap_data/11759_ccd3/11759_32x32.png',
+file_set0 = ['extrap_data/11759_ccd3/11759_32x32.png',
                 'extrap_data/11759_ccd3/11759_64x64.png',
                 'extrap_data/11759_ccd3/11759_128x128.png',
                 'extrap_data/11759_ccd3/11759_256x256.png',
                 'extrap_data/11759_ccd3/11759_512x512.png']
 
+file_set1 = ['extrap_data/11759_ccd3/11759_1024x1024.png',
+                'extrap_data/11759_ccd3/11759_2048x2048.png',
+                'extrap_data/11759_ccd3/11759_4096x4096.png',
+                'extrap_data/11759_ccd3/11759_8192x8192.png']
+                
+file_set2 = ['extrap_data/11759/11759_32x32.png',
+                'extrap_data/11759/11759_64x64.png',
+                'extrap_data/11759/11759_128x128.png',
+                'extrap_data/11759/11759_256x256.png',
+                'extrap_data/11759/11759_512x512.png']
+
+file_set3 = ['extrap_data/11759/11759_1024x1024.png',
+                'extrap_data/11759/11759_2048x2048.png',
+                'extrap_data/11759/11759_4096x4096.png',
+                'extrap_data/11759/11759_8192x8192.png']
+
 # Send filenames as data
-parallel_smooth(filenames[rank], rank, size, comm)
-
-
+parallel_smooth(file_set1[rank], rank, size, comm)
 
 
 # Print rank, mean, variance
 if rank == 0:
-    f = open('output.txt', 'w')
+    f = open('output1.txt', 'w')
     for k in range(0, size):
         results = comm.recv(source = k) # Receive data from processes
         # Print to output file
         print >>f,"***Rank %d***" % k
-        print >>f,'{}_smoothed_gpu.png'.format(os.path.splitext(filenames[k])[0])
+        print >>f,'{}_smoothed_gpu.png'.format(os.path.splitext(file_set1[k])[0])
         print >>f, "Total Time: %f"                  % results[0]
         print >>f, "Setup Time: %f"                  % results[1]
         print >>f, "Kernel (Smooth) Time: %f"        % results[2]
@@ -310,7 +324,7 @@ if rank == 0:
         print >>f, "Kernel (Output) Time: %f"        % results[4]
         print >>f, "\n"
         print "***Rank %d***" % k
-        print '{}_smoothed_gpu.png'.format(os.path.splitext(filenames[k])[0])
+        print '{}_smoothed_gpu.png'.format(os.path.splitext(file_set1[k])[0])
         # Print to terminal
         print "Total Time: %f"                  % results[0]
         print "Setup Time: %f"                  % results[1]
