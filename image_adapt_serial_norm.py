@@ -31,8 +31,8 @@ NORM = np.zeros((Lx, Ly), dtype=np.float32)
 OUT = np.zeros((Lx, Ly), dtype=np.float32)
 
 # Set Parameters
-Threshold = np.int32(15)
-MaxRad = np.int32(4)
+Threshold = np.int32(1)
+MaxRad = np.int32(10)
 
 setup_stop_time = time.time()
 kernel_start_time = time.time()
