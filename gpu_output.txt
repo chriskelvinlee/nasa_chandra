@@ -1,0 +1,191 @@
+########################
+#  BEGINNING OF SET 0
+########################
+***Rank 0***
+extrap_data/11759_ccd3/11759_32x32_smoothed_gpu.png
+Total Time: 0.135001
+Setup Time: 0.064601
+Kernel (Smooth) Time: 0.003347
+Kernel (Norm) Time: 0.000009
+Kernel (Output) Time: 0.000349
+
+
+***Rank 1***
+extrap_data/11759_ccd3/11759_64x64_smoothed_gpu.png
+Total Time: 0.046320
+Setup Time: 0.012661
+Kernel (Smooth) Time: 0.007650
+Kernel (Norm) Time: 0.009970
+Kernel (Output) Time: 0.000400
+
+
+***Rank 2***
+extrap_data/11759_ccd3/11759_128x128_smoothed_gpu.png
+Total Time: 0.047203
+Setup Time: 0.013542
+Kernel (Smooth) Time: 0.005814
+Kernel (Norm) Time: 0.011008
+Kernel (Output) Time: 0.000777
+
+
+***Rank 3***
+extrap_data/11759_ccd3/11759_256x256_smoothed_gpu.png
+Total Time: 0.045058
+Setup Time: 0.010829
+Kernel (Smooth) Time: 0.016529
+Kernel (Norm) Time: 0.001361
+Kernel (Output) Time: 0.002001
+
+
+***Rank 4***
+extrap_data/11759_ccd3/11759_512x512_smoothed_gpu.png
+Total Time: 0.106706
+Setup Time: 0.030943
+Kernel (Smooth) Time: 0.035186
+Kernel (Norm) Time: 0.000168
+Kernel (Output) Time: 0.007470
+
+########################
+#  END OF SET 0
+########################
+
+########################
+#  BEGINNING OF SET 1
+########################
+
+***Rank 0***
+extrap_data/11759_ccd3/11759_1024x1024_smoothed_gpu.png
+Total Time: 0.178584
+Setup Time: 0.005923
+Kernel (Smooth) Time: 0.134458
+Kernel (Norm) Time: 0.000375
+Kernel (Output) Time: 0.029342
+
+
+***Rank 1***
+extrap_data/11759_ccd3/11759_2048x2048_smoothed_gpu.png
+Total Time: 0.718792
+Setup Time: 0.041048
+Kernel (Smooth) Time: 0.518108
+Kernel (Norm) Time: 0.001326
+Kernel (Output) Time: 0.115534
+
+
+***Rank 2***
+extrap_data/11759_ccd3/11759_4096x4096_smoothed_gpu.png
+Total Time: 3.296049
+Setup Time: 0.380883
+Kernel (Smooth) Time: 2.066104
+Kernel (Norm) Time: 0.005908
+Kernel (Output) Time: 0.460356
+
+
+***Rank 3***
+extrap_data/11759_ccd3/11759_8192x8192_smoothed_gpu.png
+Total Time: 13.587485
+Setup Time: 1.670082
+Kernel (Smooth) Time: 8.370066
+Kernel (Norm) Time: 0.023609
+Kernel (Output) Time: 1.851887
+
+########################
+#  END OF SET 1
+########################
+
+########################
+#  BEGINNING OF SET 2
+########################
+
+***Rank 0***
+extrap_data/11759/11759_32x32_smoothed_gpu.png
+Total Time: 0.111604
+Setup Time: 0.050463
+Kernel (Smooth) Time: 0.005639
+Kernel (Norm) Time: 0.000009
+Kernel (Output) Time: 0.000320
+
+
+***Rank 1***
+extrap_data/11759/11759_64x64_smoothed_gpu.png
+Total Time: 0.021296
+Setup Time: 0.000697
+Kernel (Smooth) Time: 0.011464
+Kernel (Norm) Time: 0.005623
+Kernel (Output) Time: 0.000402
+
+
+***Rank 2***
+extrap_data/11759/11759_128x128_smoothed_gpu.png
+Total Time: 0.022137
+Setup Time: 0.000766
+Kernel (Smooth) Time: 0.016742
+Kernel (Norm) Time: 0.000505
+Kernel (Output) Time: 0.000774
+
+
+***Rank 3***
+extrap_data/11759/11759_256x256_smoothed_gpu.png
+Total Time: 0.018548
+Setup Time: 0.000942
+Kernel (Smooth) Time: 0.010761
+Kernel (Norm) Time: 0.001952
+Kernel (Output) Time: 0.001960
+
+
+***Rank 4***
+extrap_data/11759/11759_512x512_smoothed_gpu.png
+Total Time: 0.045195
+Setup Time: 0.001744
+Kernel (Smooth) Time: 0.032963
+Kernel (Norm) Time: 0.000088
+Kernel (Output) Time: 0.007080
+
+
+
+########################
+#  END OF SET 2
+########################
+
+########################
+#  BEGINNING OF SET 3
+########################
+
+***Rank 0***
+extrap_data/11759/11759_1024x1024_smoothed_gpu.png
+Total Time: 1.339312
+Setup Time: 0.591253
+Kernel (Smooth) Time: 0.126188
+Kernel (Norm) Time: 0.000999
+Kernel (Output) Time: 0.027778
+
+
+***Rank 1***
+extrap_data/11759/11759_2048x2048_smoothed_gpu.png
+Total Time: 0.637659
+Setup Time: 0.018331
+Kernel (Smooth) Time: 0.488963
+Kernel (Norm) Time: 0.001325
+Kernel (Output) Time: 0.108857
+
+
+***Rank 2***
+extrap_data/11759/11759_4096x4096_smoothed_gpu.png
+Total Time: 3.219559
+Setup Time: 0.409590
+Kernel (Smooth) Time: 1.955144
+Kernel (Norm) Time: 0.005967
+Kernel (Output) Time: 0.437492
+
+
+***Rank 3***
+extrap_data/11759/11759_8192x8192_smoothed_gpu.png
+Total Time: 13.173264
+Setup Time: 1.641915
+Kernel (Smooth) Time: 8.070886
+Kernel (Norm) Time: 0.023748
+Kernel (Output) Time: 1.793114
+
+########################
+#  END OF SET 3
+########################
+
