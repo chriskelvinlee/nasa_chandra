@@ -20,8 +20,8 @@ except:
 """
 
 file_name   = 'extrap_data/11759_ccd3/11759_32x32.png'
-Threshold   = np.int32(1)
-MaxRad      = np.int32(10)
+Threshold   = np.int32(15)
+MaxRad      = np.int32(4)
 
 
 # setup input file
@@ -31,6 +31,9 @@ IMG = array( IMG_rgb[:,:,0] )
 # Get image data
 Lx = np.int32( IMG.shape[0] )
 Ly = np.int32( IMG.shape[1] )
+
+total_start_time = time.time()
+setup_start_time = time.time()
 
 # Allocate memory
 # size of the box needed to reach the threshold value or maxrad value
@@ -160,7 +163,7 @@ kernel_norm_source = \
         // Compute within bounds of block dimensions
         if( tid > 0 && tid < blockDim.x-1 && tjd > 0 && tjd < blockDim.y-1 )
         {
-            if (NORM[gtid] != 0)
+            if (s_NORM[stid] != 0)
             {
                 IMG[gtid] /= s_NORM[stid];
             }
@@ -241,8 +244,7 @@ smoothing_kernel = nvcc.SourceModule(kernel_smooth_source).get_function("smoothi
 normalize_kernel = nvcc.SourceModule(kernel_norm_source).get_function("normalizeFilter")
 out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
 
-total_start_time = time.time()
-setup_start_time = time.time()
+
 
 # Allocate memory and constants
 smem_size   = int(TPBx*TPBy*4)
@@ -309,9 +311,9 @@ NORM_out = NORM_device.get()
 
 
 total_stop_time = time.time()
-imsave('{}_smoothed_gpu.png'.format(file_name), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
+imsave('{}_smoothed_gpu_s.png'.format(os.path.splitext(file_name)[0]), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
 # Debug
-f = open('debug_gpu.txt', 'w')
+f = open('debug_gpu_s.txt', 'w')
 set_printoptions(threshold='nan')
 print >>f,'IMG'
 print >>f, str(IMG).replace('[',' ').replace(']', ' ')
@@ -324,11 +326,12 @@ print >>f, str(NORM_out).replace('[',' ').replace(']', ' ')
 f.close()
 
 # Print results & save
-total_time      = (total_stop_time - total_start_time)
+
 setup_time      = (setup_stop_time - setup_start_time)
 smth_ker_time   = (smth_kernel_start_time.time_till(smth_kernel_stop_time) * 1e-3)
 norm_ker_time   = (norm_kernel_start_time.time_till(norm_kernel_stop_time) * 1e-3)
 out_ker_time    = (out_kernel_start_time.time_till(out_kernel_stop_time) * 1e-3)
+total_time      = setup_time + smth_ker_time + norm_ker_time + out_ker_time
 
 print "Total Time: %f"                  % total_time
 print "Setup Time: %f"                  % setup_time

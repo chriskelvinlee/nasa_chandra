@@ -10,8 +10,8 @@ import time
 
 def parallel_smooth(file_name, rank, size, comm):
     # Parameter
-    Threshold   = np.int32(15)
-    MaxRad      = np.int32(4)
+    Threshold   = np.int32(10)
+    MaxRad      = np.int32(2)
 
     # Setup input file
     IMG_rgb = imread(file_name)
@@ -105,7 +105,7 @@ def parallel_smooth(file_name, rank, size, comm):
                     {
                         if (ksum != 0)
                         {
-                            NORM[gtid + ii*Ly + jj] +=  1.0 / 2;
+                            NORM[gtid + ii*Ly + jj] +=  1.0 / ksum;
                         }
                     }
                 }
@@ -142,7 +142,7 @@ def parallel_smooth(file_name, rank, size, comm):
         // Compute all pixels except for image border
     	if ( i >= 0 && i < Ly && j >= 0 && j < Lx )
     	{
-            if (NORM != 0)
+            if (NORM[gtid] != 0)
             {
                 // Access from global memory
                 IMG[gtid] /= NORM[gtid];
