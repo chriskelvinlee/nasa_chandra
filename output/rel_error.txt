@@ -1,0 +1,20 @@
+Error check for 32 x 32 image
+Relative Pixel Error  = 8.730360e-05
+
+
+Error check for 64 x 64 image
+Relative Pixel Error  = 7.014218e-05
+
+
+Error check for 128 x 128 image
+Relative Pixel Error  = 1.299115e-05
+
+
+Error check for 256 x 256 image
+Relative Pixel Error  = 8.053484e-06
+
+
+Error check for 512 x 512 image
+Relative Pixel Error  = 1.411130e-05
+
+
