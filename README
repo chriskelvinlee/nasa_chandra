@@ -72,11 +72,17 @@ While running our program on the Resonance cluster from the command line:
 
 3. GPU Implementation
 	How To Run
-No module named pycuda.autoinit
-module load packages/pycuda/2011.1.2
+
+    Aforementioned Threshold and MaxRad parameters apply in GPU version. Change Debug flag to 0 or 1 to produce gpu_output.txt to compare with serial_output.txt. Relative error is outputted in rel_error.txt. Make sure all file locations are correct.
+
+%: gpu-login 
+%: module load packages/pycuda/2011.1.2
+%: python image_adapt_gpu_global.py			# to run global memory
+%: python image_adapt_gpu.py				# to run shared memory
+
 
 4. MPI Implementation
 	How To Run
 
-No module named pycuda.autoinit
-module load packages/pycuda/2011.1.2
+%: mpiexec -n 5 python image_adapt_mpi.py	# to run MPI/CUDA
+%: python rel_error					        # to check for error
