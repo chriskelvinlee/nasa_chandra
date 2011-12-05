@@ -9,12 +9,12 @@
 <body>
 <div id="toplinks">
 	<div id="toplinksnav">
-	<p>Danny Gibbs | Christopher Lee &nbsp;- &nbsp;Harvard University</p>
+	<p>Danny Gibbs | <a href="http://chriskelvinlee.com" style="text-decoration:none">Christopher K. Lee</a> &nbsp;- &nbsp;Harvard University</p>
 	</div>
 </div>
 
 <div id="slogan">
-<img src="img/5_cygx1_xray.jpg" height="310" alt="Header" class="sloganfloat" />
+<img src="img/3_m82.jpg" height="310" alt="Header" class="sloganfloat" />
 <h1>Parallelized Adaptive Smoothing</h1>
 <p>for Chandra X-Ray Observatory Datasets</p>
 </div>
@@ -26,7 +26,7 @@
 	<li><a href="data.html" title="data">Data</a></li>
 	<li><a href="design.html" title="design">Design</a></li>
 	<li><a href="results.html" title="results">Results</a></li>
-	<li><a href="instructions.html" title="instructions">Instructions</a></li>
+	<li><a href="instructions.html" title="results">Instructions</a></li>
 	<li><a href="contact.html" title="contact">Contact</a></li>
 	</ul>
 	</div>
@@ -34,6 +34,7 @@
 
 
 <div id="textarea">
+    <br>
 <h2>Contact</h2>
 <p><br />
 Danny Gibbs<br />
@@ -50,8 +51,28 @@ cklee [at] college.harvard.edu <br />
 Danny Gibbs works for the Harvard-Smithsonian Center for Astrophysics in Cambridge, MA.  He has been focusing on application software for data analysis/reduction for the Chandra X-Ray Observatory for almost 5 years.  The large data sets that astronomical data provides are very applicable to this course.  He is taking this class to advance his understanding of parallel computing to bring to the job site. 
 </p>
 <p>
-Christopher Lee is a student at the College studying Applied Mathematics. He is interested in applying to CS graduate school, and would like to get more exposure to the sciences. Christopher's father is an engineer for Northrup Grumman, and received healthy doses of space technologies while growing up.
+Christopher K. Lee is a student at the College studying Applied Mathematics. He is interested in applying to CS graduate school, and would like to get more exposure to the sciences. Christopher's father is a head engineer for Northrup Grumman and introduced him to space technologies while growing up.
 </p>
+
+<p class="c5"><span class="c3">&nbsp;</span></p>
+<br>
+<hr>
+<p class="c5"><span class="c3">&nbsp;</span></p>
+
+
+        <h2 class="c5"><a name="h.59v0s8xxwkqs"></a><span>V. Conclusion</span></h2><p class="c2"><span class="c3"></span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3 c24">8.) What did you most enjoy about working on this project? What was the most challenging aspect? What was the most frustrating? What would you do differently next time?</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3 c24">Danny</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">I enjoyed being able to apply the concepts learned in the course to things I see at work. Many times in past courses I have taken, the projects end up being more of an academic exercise than real life applications. I see now why the instructors requesting people pick something they found interesting to work on because I did spent a lot of time on it and it was nice to know I can apply this knowledge to future projects outside of the course environment.</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">The most challenging aspect for me was to translate the existing C code with all of the specific &quot;CIAOisms&quot; and create a Python version of the code. Luckily, my boss, Kenny Glotfelty, provided a basic pseudo code representation of the algorithm. However, there were still challenges creating a pythonic version of a c algorithm. I am sure there are more pythonic ways to do some of the computations we ended up doing. So part of the frustration was learning the ins and outs of Python and realizing that somethings are not meant to have a direct c to python conversion. There are times when Python does things differently and it took time to learn and figure out what those things are.</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">One of the most frustrating things that I came across ended up being a simple issue of the type of input file we were using. CIAO provided us a tool called dmimg2jpg, so I used that to create what I thought was a useful input jpg image. I thought I had the serial version of the code working wonderfully but ended up with a terrible output image. So I went through the algorithm line by line. When I got to the top I thought that surely the input file must be ok, but they way I was reading the file, the type I needed was a png file, the jpg version was not giving the same values as the png version. So many hours were spent looking into the problem and many tears of joy occurred when the solution was found. It always seems that the hardest bugs are the smallest ones at the end to diagnose and deal with.</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">I think the thing that I would do differently next time would be to have a better overall understanding of the project I was dealing with going into it. I didn&#39;t realize the complexity of the original algorithm and assumed the time window we had for the final project was ample time to work through it all. Had I known the specific complexities of dealing with C and Python in the same time, I think I might not have bitten of more than I could chew. I think I also would have spent more time at the beginning getting things set up to use the fits file format so we would have had the exact same data to work with as the C program. Then we could have had a direct comparison between the C algorithm and the GPU algorithm, instead of a more generic Python version of the algorithm.</span></p><p class="c2"><span class="c3"></span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3 c24">Christopher</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">This was a very enjoyable final project with the right amount of difficulty. I am surprised by my own ability to implement serial algorithms into parallel versions with fair proficiency. I especially enjoyed learning more about astronomy and pushing what I had learned in class to complete tasks that probably haven&rsquo;t been done before. Thinking through how to implement 3 CUDA kernels, then optimizing work-flow with MPI+CUDA, really forced me to learn and think about the course material very well. </span></p><p class="c2"><span class="c3"></span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">Scientific computing is a challenging area of study that has wide-implications. My only cautionary advice that I&rsquo;d give myself: shared memory can sometimes cause more headaches than solutions, especially in cases where memory r/w are sparse to begin with.</span></p><p class="c2">
+<p class="c5"><span class="c3">&nbsp;</span></p>
+<br>
+<hr>
+
+<a class="c16"  href="https://docs.google.com/spreadsheet/ccc?key=0Age4mtYREqYgdFVNZnpIaEVGenE0dWM3YnZobGtvdkE&amp;hl=en_US#gid=0" TARGET='_blank' >Access the Speedup Calculations here</a></span><span class="c24">&nbsp;and view this<a href= "https://docs.google.com/document/d/1Q0oqJu5HB99W4F5rzuuIggcdjccqu5MwYOwbRRxLMtk/edit?hl=en_US" TARGET='_blank' >write-up</a> as a Google Doc:</span>
+
+<br>
+<p class="c5"><span class="c3">&nbsp;</span></p>
+<p class="c5"><span class="c3">&nbsp;</span></p>
+<hr>
+<hr>
+
 </div>
 
 

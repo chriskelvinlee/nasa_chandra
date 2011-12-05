@@ -9,7 +9,7 @@
 <body>
 <div id="toplinks">
 	<div id="toplinksnav">
-	<p>Danny Gibbs | Christopher Lee &nbsp;- &nbsp;Harvard University</p>
+	<p>Danny Gibbs | <a href="http://chriskelvinlee.com" style="text-decoration:none">Christopher K. Lee</a> &nbsp;- &nbsp;Harvard University</p>
 	</div>
 </div>
 
@@ -26,63 +26,95 @@
 	<li><a href="data.html" title="data">Data</a></li>
 	<li><a href="design.html" title="design">Design</a></li>
 	<li><a href="results.html" title="results">Results</a></li>
-	<li><a href="instructions.html" title="instructions">Instructions</a></li>
+	<li><a href="instructions.html" title="results">Instructions</a></li>
 	<li><a href="contact.html" title="contact">Contact</a></li>
 	</ul>
 	</div>
 </div>
 
-
 <div id="textarea">
-<h2>quot choro sapientem cum:</h2>
-<!-- <p class="date">December 07, 2006</p> -->
 <br>
-<p>inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.</p>
-    <h3>Future Improvements/Enhancements</h3>
-    <br>
-    <p>
-	While implementing the project we ran into difficulty implementing a weighted sum approach.  We had a serial version coded up utilizing a gaussian weighted sum, then when we were coding the parallel version we ran into difficulties.  What took two lines to achieve in Python, was seemingly going to take 15-20 lines.  So we deferred that as an item we would like to implement given more time.  In addition to the gaussian weighted sum, there are other methods we could implement, like cone, boxcar, tophat, or mexican hat weighted sum approaches.  
-	In order to make the input files easier for us to deal with in python and with the installed packages on Resonance, we decided to convert the astronomical data from fits files ultimately to png files.  An improvement we could deliver would be to handle the fits file format directly, read in the data, perform our adaptive smoothing algorithm, then write out a new fits file.  This would also allow for a more one to one comparison between the C code implementation from CIAO tools to the Python implementation we used.
-	The original C implementation has the option to output some of the intermediate data files.  The user can specify to output a file of all of the sum values, a file of all the normalization values and also all the radius/box size values.  
-	The ultimate goal of the project would be to incorporate it into the CIAO data model.  This would allow for seamless integration into data analysis for x-ray astronomers with access to a GPU.  The CIAO Data Model (<a href="http://goo.gl/QMXx0">DM</a>) is a versatile interface used by CIAO to examine and manipulate standard format data files (e.g Fits, ascii).  This would greatly reduce the time for data analysis.
+    <h2 class="c5"><a name="h.3jl7us3v8pcw"></a><span>Image Results</span></h2>
     
-    </p>
+    <p class="c5"><span class="c3">&nbsp;</span></p>
+    
+    <h3 class="c5"><a name="h.dhjvdw535yjt"></a><span>Sample Output</span></h3><p class="c2"><span class="c3 c24"></span></p><p class="c5"><span class="c3 c24">5a) </span><span class="c3 c24">What is the performance of your code? </span></p><p class="c2"><span class="c11"></span></p><p class="c2"><span class="c11"></span></p><table cellpadding="0" cellspacing="0" class="c26"><tbody><tr><td class="c8"><p class="c1"><img height="32" src="images/image00.png" width="32"><span class="c11"><br></span><span class="c11 c7 c24">Fig 2a - 32x32 Original</span></p></td><td class="c8"><p class="c1"><img height="32" src="images/image09.png" width="32"><span class="c11"><br></span><span class="c11 c7 c24">Fig 2b - 32x32 GPU ASMOOTH</span></p></td></tr><tr><td class="c8"><p class="c1"><img height="64" src="images/image12.png" width="64"><span class="c11"><br></span><span class="c11 c7 c24">Fig 2c - 64x64 Original</span></p></td><td class="c8"><p class="c1"><img height="64" src="images/image04.png" width="64"><span class="c11"><br></span><span class="c11 c7 c24">Fig 2d - 64x64 GPU ASMOOTH</span></p></td></tr><tr><td class="c8"><p class="c1"><img height="128" src="images/image13.png" width="128"><span class="c11"><br></span><span class="c11 c7 c24">Fig 2e - 128x128 Original</span></p></td><td class="c8"><p class="c1"><img height="128" src="images/image11.png" width="128"><span class="c11"><br></span><span class="c11 c7 c24">Fig 2f - 128x128 GPU ASMOOTH</span></p></td></tr><tr><td class="c8"><p class="c1"><img height="256" src="images/image07.png" width="256"><span class="c11"><br></span><span class="c11 c7 c24">Fig 2h - 256x256 Original</span></p></td><td class="c8"><p class="c1"><img height="256" src="images/image05.png" width="256"><span class="c11"><br></span><span class="c11 c7 c24">Fig 2i - 256x256 GPU ASMOOTH</span></p></td></tr><tr><td class="c8"><p class="c1"><img height="300" src="images/image01.png" width="298"><span class="c11"><br></span><span class="c11 c7 c24">Fig 2j - 8192x8192 Original</span></p></td><td class="c8"><p class="c1"><img height="300" src="images/image06.png" width="298"><span class="c11 c7 c24">
+        
+        
+        <br>Fig 2k - 8192x8192 GPU ASMOOTH</span></p></td></tr></tbody></table><p class="c5"><span class="c11 c7 c24">Figures 2a-k </span><span class="c11 c7">Example output of CIAO 11759_ccd3 original images and adaptively smoothed images with CUDA with Threashold = 15 and RadMax = 4. Serial implementation in Fig 2j would have taken 4.5 days to compute. ASMOOTH in Fig 2k took 1.65 seconds. </span></p><p class="c2"><span class="c11"></span></p>
+    
+
+<br>
+<hr>
+<p class="c5"><span class="c3">&nbsp;</span></p>
+
+    <h2 class="c5"><a name="h.blvldm2lahe0"></a><span>Speedup</span></h2><p class="c2"><span class="c11"></span></p><p class="c5"><span class="c3 c24">5b) What speedup and efficiency did you achieve? </span></p><p class="c2"><span class="c11"></span></p><p class="c5"><span class="c3">We measured a logarithmic speedup of 2.01-5.38x over the two datasets 11759_ccd3 and 11759. As expected, speedup grew increased linearly as dimensions grew from 32x32 to 512x512 pixels. However, the the upper pixel regime from 1024x1024 to 8192x8192 pixels, with 2^20 = 1,048,576 pixels and 2^26 = 67,108,864 pixels, we quickly observe Ahmdal&rsquo;s Law quickly take effect. Further measurements could have been made; however, the serial version was the bottleneck and took too much time to compute. Accuracy was verified with a </span><span class="c42 c3"><a class="c16" href="http://rel_error.py">rel_error.py</a></span><span class="c3">&nbsp;script to ensure pixel representing X-Ray source hit count was accurate.</span></p><p class="c2"><span class="c11"></span></p><table cellpadding="0" cellspacing="0" class="c26"><tbody><tr><td class="c40"><p class="c1 c20"><img height="395" src="images/image03.png" width="526"><span class="c11"><br></span><span class="c11 c7 c24">Fig 3 - </span><span class="c11 c7">Speedup plot (log) over pixel dimensions. Note that x-axis and y-axis labels plotted<br>on normalized intervals for readability and not adjusted for true scale.</span></p></td></tr></tbody></table><p class="c2"><span class="c11"></span></p><p class="c2"><span class="c11"></span></p>
+    
+<br>
+<hr>
+<p class="c5"><span class="c3">&nbsp;</span></p>  
+    
+    
+   <h2> <p class="c5"><span class="c14">Error Checking</span></h2></p><p class="c2"><span class="c11"></span></p><table cellpadding="0" cellspacing="0" class="c26"><tbody><tr><td class="c15"><p class="c1 c22 c20"><span class="c3">Image Dimensions</span></p></td><td class="c29"><p class="c1 c22 c20"><span class="c3">Relative Pixel Error</span></p></td></tr><tr><td class="c15"><p class="c1 c20 c22"><span class="c3">32 x 32</span></p></td><td class="c29"><p class="c1 c22 c20"><span class="c3">8.730360e-05</span></p></td></tr><tr><td class="c15"><p class="c1 c22 c20"><span class="c3">64 x 64</span></p></td><td class="c29"><p class="c1 c22 c20"><span class="c3">7.014218e-05</span></p></td></tr><tr><td class="c15"><p class="c1 c22 c20"><span class="c3">128 x 128</span></p></td><td class="c29"><p class="c1 c22 c20"><span class="c3">1.299115e-05</span></p></td></tr><tr><td class="c15"><p class="c1 c22 c20"><span class="c3">256 x 256</span></p></td><td class="c41"><p class="c1 c22 c20"><span class="c3">8.053484e-06</span></p></td></tr><tr><td class="c15"><p class="c1 c22 c20"><span class="c3">512 x 512</span></p></td><td class="c29"><p class="c1 c22 c20"><span class="c3">1.411130e-05</span></p></td></tr><tr><td class="c15"><p class="c1 c22 c20"><span class="c3">&hellip; </span></p></td><td class="c29"><p class="c1 c22 c20"><span class="c3">Serial version takes 2.5+ days</span></p></td></tr></tbody></table><p class="c2"><span class="c11"></span></p><p class="c5"><span class="c3">Apart from marginal rounding error in float32, serial and parallel adaptively smoothed mages were verified to be identical and have relative pixel errors less than 1e-05.</span></p><p class="c2"><span class="c11"></span></p>
+    
+<br>
+<hr>
+<p class="c5"><span class="c3">&nbsp;</span></p>    
+    
+   <h2> <p class="c5"><span class="c14">Optimizations</span></p></h2><p class="c2"><span class="c11"></span></p><p class="c5"><span class="c3 c24">5c.) What optimizations did you implement to achieve this speedup?</span></p><p class="c2"><span class="c3 c24"></span></p>
+      <ul>
+          <li>Minimize number of read/writes from host to device</li>
+   <pre>
+   
+   <p class="c2"><span class="c3 c24"></span></p><p class="c25 c5"><span class="c11 c7"># Copy arrays from host to device once</span></p><p class="c25 c5"><span class="c11 c7">IMG_device &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= gpuarray.to_gpu(IMG)</span></p><p class="c25 c5"><span class="c7 c11">BOX_device &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= gpuarray.to_gpu(BOX)</span></p><p class="c25 c5"><span class="c11 c7">NORM_device &nbsp; &nbsp; &nbsp; &nbsp; = gpuarray.to_gpu(NORM)</span></p><p class="c25 c5"><span class="c11 c7">OUT_device &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= gpuarray.to_gpu(OUT)</span></p><p class="c2 c25"><span class="c11 c7"></span></p><p class="c25 c5"><span class="c11 c7"># Copy image once from device to host</span></p><p class="c25 c5"><span class="c11 c7">IMG_out = OUT_device.get()</span></p>
+   
+   </pre>
+   
+   
+   <p class="c2"><span class="c3 c24"></span></p>
+   
+   <li>
+   
+   Favor global memory over shared memory [see image_adapt_gpu_global.py]</li>
+  
+   
+   
+   <pre>
+   <p class="c0"><span class="c11 c7">sum += IMG[gtid + ii*Ly + jj];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[line 102, r]</span></p><p class="c0"><span class="c11 c7">NORM[gtid + ii*Ly + jj] += &nbsp;1.0 / ksum;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[line 121, w]</span></p><p class="c0"><span class="c11 c7">IMG[gtid] /= NORM[gtid];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[line 161, w]</span></p><p class="c0"><span class="c11 c7">OUT[gtid] = sum / ksum;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[line 211, w]</span></p>
+   
+   </pre>
+   
+   <p class="c2"><span class="c11"></span></p>
+   
+   <li>
+   Use MPI to run multiple CUDA jobs (not a speedup improvement, but a workflow improvement)</li>
+       
+       <pre>
+       
+       <span class="c24 c28"></span></p><p class="c0"><span class="c7">comm = MPI.COMM_WORLD</span></p><p class="c0"><span class="c7">size = comm.Get_size()</span></p><p class="c0"><span class="c7">rank = comm.Get_rank()</span></p><p class="c2 c21"><span class="c7"></span></p><p class="c2 c21"><span class="c7"></span></p><p class="c0"><span class="c7">file_set0 = [&#39;extrap_data/11759_ccd3/11759_32x32.png&#39;,</span></p><p class="c0"><span class="c7">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &#39;extrap_data/11759_ccd3/11759_64x64.png&#39;,</span></p><p class="c0"><span class="c7">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &#39;extrap_data/11759_ccd3/11759_128x128.png&#39;,</span></p><p class="c0"><span class="c7">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &#39;extrap_data/11759_ccd3/11759_256x256.png&#39;,</span></p><p class="c0"><span class="c7">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &#39;extrap_data/11759_ccd3/11759_512x512.png&#39;]</span></p><p class="c2 c21"><span class="c7"></span></p><p class="c0"><span class="c7">parallel_smooth(file_set0[rank], rank, size, comm)</span></p><p class="c2 c21"><span class="c7">
+        
+        </pre>
+        
+       </span></p><p class="c2"><span class="c11"></span></p>
+    </ul>
+    
     <br>
-    <h3>Insights</h3>
-    <br>
-    <p>Danny</p>
-    <p>
-    	I know have a deeper understanding of the dmimgadapt() CIAO tool.  Before this project I had never used it before at work.  I now see the great benefits of using GPUs to analyze real life data.  When I enrolled in this course I wasn't exactly sure how it would translate to the types of data I deal with and algorithms we implement at work, now I see how much more quickly and efficiently things can be handled with parallel processing.  Whether it comes in the form of GPU or MPI, there is great benefit from utilizing these approaches in the astronomy field. 
-    </p>
-    <br>
-    <p>Chris</p>
-    <br>
-    <p>
-    inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.
-    </p>
-    <br>
-    <h3>Additional Thoughts on the Project</h3>
-    <br>
-    <p>Danny</p>
-    <br>
-    <p>
-	I enjoyed being able to apply the concepts learned in the course to things I see at work.  Many times in past courses I have taken, the projects end up being more of an academic exercise than real life applications.  I see now why the instructors requesting people pick something they found interesting to work on because I did spent a lot of time on it and it was nice to know I can apply this knowledge to future projects outside of the course environment.
-    </p>
-    <p>
-	The most challenging aspect for me was to translate the existing C code with all of the specific "CIAOisms" and create a Python version of the code.  Luckily, my boss, Kenny Glotfelty, provided a basic pseudo code representation of the algorithm.  However, there were still challenges creating a pythonic version of a c algorithm.  I am sure there are more pythonic ways to do some of the computations we ended up doing.  So part of the frustration was learning the ins and outs of Python and realizing that somethings are not meant to have a direct c to python conversion.  There are times when Python does things differently and it took time to learn and figure out what those things are. 
-    </p>
-    <p>
-	One of the most frustrating things that I came across ended up being a simple issue of the type of input file we were using.  CIAO provided us a tool called dmimg2jpg, so I used that to create what I thought was a useful input jpg image.  I thought I had the serial version of the code working wonderfully but ended up with a terrible output image.  So I went through the algorithm line by line.  When I got to the top I thought that surely the input file must be ok, but they way I was reading the file, the type I needed was a png file, the jpg version was not giving the same values as the png version.  So many hours were spent looking into the problem and many tears of joy occurred when the solution was found.  It always seems that the hardest bugs are the smallest ones at the end to diagnose and deal with.  
-    </p>
-    <p>
-	I think the thing that I would do differently next time would be to have a better overall understanding of the project I was dealing with going into it.  I didn't realize the complexity of the original algorithm and assumed the time window we had for the final project was ample time to work through it all.  Had I known the specific complexities of dealing with C and Python in the same time, I think I might not have bitten of more than I could chew.  I think I also would have spent more time at the beginning getting things set up to use the fits file format so we would have had the exact same data to work with as the C program.  Then we could have had a direct comparison between the C algorithm and the GPU algorithm, instead of a more generic Python version of the algorithm.     
-    </p>
-    <br>
-    <p>Chris<p>
-    <br>
-    <p>
-        inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.
-    </p>
+<hr>
+<p class="c5"><span class="c3">&nbsp;</span></p>    
+    
+    
+    <h2 class="c5"><a name="h.c65oqio4bjn"></a><span>Discussion</span></h2>
+    
+<p class="c5"><span class="c3">&nbsp;</span></p>    
+    <h3 class="c5"><a name="h.be8ny55ll768"></a><span>Insights</span></h3><p class="c2"><span class="c11"></span></p><p class="c5"><span class="c3 c24">6.) What interesting insights did you gain from this project?</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3 c24">Danny</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">I know have a deeper understanding of the dmimgadapt() CIAO tool. Before this project I had never used it before at work. I now see the great benefits of using GPUs to analyze real life data. When I enrolled in this course I wasn&#39;t exactly sure how it would translate to the types of data I deal with and algorithms we implement at work, now I see how much more quickly and efficiently things can be handled with parallel processing. Whether it comes in the form of GPU or MPI, there is great benefit from utilizing these approaches in the astronomy field.</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3 c24">Christopher</span></p><p class="c2"><span class="c3"></span></p><ol class="c34" start="1"><li class="c30 c25 c5"><span class="c3">Shared memory is both more difficult to implementation and prone to memory access error. In this case, the size of the adaptive smoothing kernel is dynamic and may change from n=9, thus all pixels 9 from the border of a 32x32 block will need to be computed on global memory, or shared memory will need to get have 9-pixel padding effectively reducing the size of the block to 14x14 (32 - 18 = 14). At this point, it&rsquo;s not worthwhile to pursue a shared memory implementation due to the added complexity and added cost of initializing the read/write of shared memory from and to global memory.</span></li></ol><p class="c2"><span class="c3"></span></p><ol class="c34" start="2"><li class="c30 c25 c5"><span class="c3">Global memory seems to be actually faster for the reasons explained in 1), but also because global memory bandwidth seems to be sufficient for our purposes here. Our 3 CUDA kernels are not computationally expensive and will run relatively fast, even if memory speed could be improved with shared memory. With speeds &gt;1.65 seconds for 8192x8192 pixels, global memory is sufficient for the astronomy use</span></li></ol><p class="c2"><span class="c3"></span></p><ol class="c34" start="3"><li class="c30 c25 c5"><span class="c3">There seems to be some background noise/unknown anomaly that creates very, very faint white ghost streaks in the gpu versions. It is most likely a misunderstanding of the dmimgadapt() CIAO tool rather than an indexing error. The so-called rounding error is minimal enough that it can be ignored.</span></li></ol><p class="c2"><span class="c3"></span></p><p class="c2"><span class="c3"></span></p>
+    
+    <p class="c5"><span class="c3">&nbsp;</span></p>    
+    <p class="c5"><span class="c9"><h3>Extensions</h3></span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3 c24">7.) Extensions and improvements can you suggest?</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">While implementing the project we ran into difficulty implementing a weighted sum approach. We had a serial version coded up utilizing a gaussian weighted sum, then when we were coding the parallel version we ran into difficulties. What took two lines to achieve in Python, was seemingly going to take 15-20 lines. So we deferred that as an item we would like to implement given more time. In addition to the gaussian weighted sum, there are other methods we could implement, like cone, boxcar, tophat, or mexican hat weighted sum approaches. In order to make the input files easier for us to deal with in python and with the installed packages on Resonance, we decided to convert the astronomical data from fits files ultimately to png files. An improvement we could deliver would be to handle the fits file format directly, read in the data, perform our adaptive smoothing algorithm, then write out a new fits file. This would also allow for a more one to one comparison between the C code implementation from CIAO tools to the Python implementation we used. The original C implementation has the option to output some of the intermediate data files. The user can specify to output a file of all of the sum values, a file of all the normalization values and also all the radius/box size values. The ultimate goal of the project would be to incorporate it into the CIAO data model. This would allow for seamless integration into data analysis for x-ray astronomers with access to a GPU. The CIAO Data Model (</span><span class="c3 c18"><a class="c16" href="http://goo.gl/QMXx0">DM</a></span><span class="c3">) is a versatile interface used by CIAO to examine and manipulate standard format data files (e.g Fits, ascii). This would greatly reduce the time for data analysis.</span></p>
+    
+    <p class="c5"><span class="c3">&nbsp;</span></p>    
+    <p class="c5"><span class="c3">&nbsp;</span></p>    
+    
+    <p class="c2"><span class="c3"></span></p><hr><p class="c2"><span class="c6"></span></p><p class="c2"><span class="c6"></span></p><hr><p class="c2"><span class="c6"></span></p><p class="c2"><span class="c3"></span></p>
 
 </div>
 

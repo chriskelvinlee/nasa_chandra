@@ -85,4 +85,4 @@ While running our program on the Resonance cluster from the command line:
 	How To Run
 
 %: mpiexec -n 5 python image_adapt_mpi.py	# to run MPI/CUDA
-%: python rel_error					        # to check for error
+%: python rel_error                         # to check for error

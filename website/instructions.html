@@ -9,12 +9,12 @@
 <body>
 <div id="toplinks">
 	<div id="toplinksnav">
-	<p>Danny Gibbs | Christopher Lee &nbsp;- &nbsp;Harvard University</p>
+	<p>Danny Gibbs | <a href="http://chriskelvinlee.com" style="text-decoration:none">Christopher K. Lee</a> &nbsp;- &nbsp;Harvard University</p>
 	</div>
 </div>
 
 <div id="slogan">
-<img src="img/4_crab.jpg" height="310" alt="Header" class="sloganfloat" />
+<img src="img/3_m82.jpg" height="310" alt="Header" class="sloganfloat" />
 <h1>Parallelized Adaptive Smoothing</h1>
 <p>for Chandra X-Ray Observatory Datasets</p>
 </div>
@@ -26,7 +26,7 @@
 	<li><a href="data.html" title="data">Data</a></li>
 	<li><a href="design.html" title="design">Design</a></li>
 	<li><a href="results.html" title="results">Results</a></li>
-	<li><a href="instructions.html" title="instructions">Instructions</a></li>
+	<li><a href="instructions.html" title="results">Instructions</a></li>
 	<li><a href="contact.html" title="contact">Contact</a></li>
 	</ul>
 	</div>
@@ -34,32 +34,32 @@
 
 
 <div id="textarea">
-<h2>Instructions</h2>
 <br>
-    <h3>Serial Implementation</h3>
-<p>
-	In order to run the serial version we ended up having to hard code some of the user defined values as there seemed to be an issue reading in command line arguments on the Resonance Cluster.
-    <br>
-	So near the top of the file is the 'file_name' variable we use to to specify which image we wish to run through the algorithm.  
-    <br>
-	We then have our 'Threshold' and 'MaxRad' variables.  These are the user defined variables that specify the value of the pixels in the created box, Threshold, and the maximum size box to attempt to reach the threshold value, MaxRad.
-    <br>
-	The output image is created in the same directory as the input image.  We remove the extension of the input file and then append '_smoothed_serial.png' to name.  
-    <br>
-	While running our program on the Resonance cluster from the command line:
-    <br>
-	%: gpu-login
-    <br>
-	%: cd to base directory of our project
-    <br>
-	%: python image_adapt_serial_norm.py    
-    </p>
-    <br>
-    <h3>GPU Implemenation</h3>
-    <p>
-    inermis veritus recusabo his. Mei etiam legimus fastidii ex, eam mutat volumus id. Sit denique quaestio ne, etiam percipitur vel et. Everti consulatu at eos, at quot choro sapientem cum, te mel quodsi detraxit constituto.
-    </p>
-
+<h2 class="c5"><a name="h.abknyabiouc1"></a><span>Instructions</span></h22><h3 class="c5">
+        <p class="c5"><span class="c3">&nbsp;</span></p>
+    <a name="h.nfmjhw9rc8kx"></a><span>Serial Instructions</span></h3>
+    
+    
+    <p class="c2"><span></span></p><p class="c5"><span class="c9">4a). How do you use your application (mouse and keyboard functions, input/output, etc)?</span></p><p class="c5"><span class="c3">In order to run the serial version we ended up having to hard code some of the user defined values as there seemed to be an issue reading in command line arguments on the Resonance Cluster. So near the top of the file is the &#39;file_name&#39; variable we use to to specify which image we wish to run through the algorithm. </span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">We then have our &#39;Threshold&#39; and &#39;MaxRad&#39; variables. These are the user defined variables that specify the value of the pixels in the created box, Threshold, and the maximum size box to attempt to reach the threshold value, MaxRad. </span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">The output image is created in the same directory as the input image. We remove the extension of the input file and then append &#39;_smoothed_serial.png&#39; to name. </span></p><p class="c5"><span class="c3">While running our program on the Resonance cluster from the command line: </span></p>
+    
+            <pre><p class="c5"><span class="c3">%: cd to base directory of our project </span></p><p class="c5"><span class="c3">%: python image_adapt_serial_norm.py</span></p>
+        </pre>
+        
+    
+    <h3 class="c5"><a name="h.jjsrbbvdvg4b"></a><span>GPU</span><span>&nbsp;Instructions</span></h3><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c9">4b). How do you use your application (mouse and keyboard functions, input/output, etc)?</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">Aforementioned Threshold and MaxRad parameters apply in GPU version.</span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3">While running our program on the Resonance cluster from the command line: </span></p>
+    
+    
+    <pre>
+    <p class="c5"><span class="c3">%: gpu-login </span></p><p class="c5"><span class="c3">%: module load packages/pycuda/2011.1.2</span></p><p class="c5"><span class="c3">%: python </span><span class="c19 c3"><a class="c16" href="http://image_adapt_gpu_global.py">image_adapt_gpu_global.py</a></span><span class="c3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# to run global memory</span></p><p class="c5"><span class="c3">%: python </span><span class="c19 c3"><a class="c16" href="http://image_adapt_gpu.py">image_adapt_gpu.py</a></span><span class="c3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="c3"># to run shared memory</span></p><p class="c5"><span class="c3">%: mpiexec -n 5 python </span><span class="c19 c3"><a class="c16" href="http://image_adapt_gpu.py">image_adapt_mpi.py</a></span><span class="c3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="c3"># to run MPI/CUDA</span></p><p class="c5"><span class="c3">%: python rel_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# to check for error</span></p><p class="c2"><span class="c3"></span></p>
+    
+    </pre>
+    
+    <p class="c5"><span class="c3">Change Debug flag to 0 or 1 to produce gpu_output.txt to compare with serial_output.txt. Relative error is outputted in rel_error.txt. Make sure all file locations are correct.</span></p><p class="c2"><span class="c3"></span></p><p class="c2"><span class="c3"></span></p>
+    
+<br>
+<hr>
+<p class="c5"><span class="c3">&nbsp;</span></p>
+    
 </div>
 
 <div id="footer">

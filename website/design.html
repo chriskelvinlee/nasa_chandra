@@ -9,12 +9,12 @@
 <body>
 <div id="toplinks">
 	<div id="toplinksnav">
-	<p>Danny Gibbs | Christopher Lee &nbsp;- &nbsp;Harvard University</p>
+	<p>Danny Gibbs | <a href="http://chriskelvinlee.com" style="text-decoration:none">Christopher K. Lee</a> &nbsp;- &nbsp;Harvard University</p>
 	</div>
 </div>
 
 <div id="slogan">
-<img src="img/2_crab_13207.jpg" height="310" alt="Header" class="sloganfloat" />
+<img src="img/3_m82.jpg" height="310" alt="Header" class="sloganfloat" />
 <h1>Parallelized Adaptive Smoothing</h1>
 <p>for Chandra X-Ray Observatory Datasets</p>
 </div>
@@ -26,42 +26,53 @@
 	<li><a href="data.html" title="data">Data</a></li>
 	<li><a href="design.html" title="design">Design</a></li>
 	<li><a href="results.html" title="results">Results</a></li>
-	<li><a href="instructions.html" title="instructions">Instructions</a></li>
+	<li><a href="instructions.html" title="results">Instructions</a></li>
 	<li><a href="contact.html" title="contact">Contact</a></li>
 	</ul>
 	</div>
 </div>
 
 
+
 <div id="textarea">
-<h2>Preprocessing Data</h2>
 <br>
-<p>
-    In order to utilize the tools and methods we learned in this course, we wanted to use data images in the png file format.  So we converted the Chandra data that original occurs in a fits file format to png files.  For more about the data we used please visit the "Data" section of the website.
-</p>
 
-<h2>Serial Implementation</h2>
+<p class="c2"><span class="c3"></span></p><h2 class="c5"><a name="h.xrirg4e7pp4h"></a><span>Preprocessing</span></h2><p class="c2"><span class="c3"></span></p>
+
+<br><p class="c5"><span class="c3">In order to utilize the tools and methods we learned in this course, we wanted to use data images in the png file format. So we converted the Chandra data that original occurs in a fits file format to png files. For more about the data we used please visit the &quot;Data&quot; section of the website.</span></p><p class="c2"><span class="c3"></span></p>
+
 <br>
-   <h3> Re-implemented serial version from original C source into Python</h3>
-<p>
-	1. We wanted to use Python for seamless integration with the tools/ideas learned in the course.
-    <br> 
-	2. The important features we chose to implement from the dmimgadapt() algorithm were the following:
-    <br>
-		a) For each pixel in an input image, find the smallest box such that the sum of the pixels inside the box is at least some user defined threshold value.  If the size of the box reaches a user defined maximum size, we move on to the next pixel.
-        <br>
-		b) Using the box size determined from (a), we create a properly normalized output image where the sum(input pixels) = sum(output pixels)
-        <br>
-	3. Upon initially looking over the dmimgadapt() tool, we initially thought the serial algorithm would be implemented using MPI techniques similar to the Wave Equation Problem encountered in our HW3 problem set.  But after further review of the algorithm, we noticed that the pixel values are static and therefore landed itself to GPU implementation.  
-    <br>
-    4. We had to have 3 for-loop kernels to match dmimgadapt() source code. The Gaussian weights were relatively easy to implement in python in lines x and y of 'image_adapt_serial_gaussian.py.'
-</p>
+<hr>
+<p class="c5"><span class="c3">&nbsp;</span></p>
 
-<h2>GPU Implementation</h2>
+<h2 class="c5"><a name="h.573tyb65ad2a"></a><span>Serial Implementation</span></h2><p class="c5"><span class="c3"><h3>Re-implemented serial version from original C source into Python</h3></span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3 c24">3a). Describe your program design and why you chose the features you did.</span></p><p class="c2"><span class="c3"></span></p><ol class="c34" start="1"><li class="c30 c25 c5"><span class="c3">We wanted to use Python for seamless integration with the tools/ideas learned in the course. </span></li><li class="c30 c25 c5"><span class="c3">The important features we chose to implement from the dmimgadapt() algorithm were the following: </span></li></ol><ol type="a" start="1"><li class="c0 c30"><span class="c3">
+
+&nbsp;
+For each pixel in an input image, find the smallest box such that the sum of the pixels inside the box is at least some user defined threshold value. If the size of the box reaches a user defined maximum size, we move on to the next pixel. </span></li><li class="c0 c30"><span class="c3">
+    
+    
+    &nbsp;Using the box size determined from (a), we create a properly normalized output image where the sum(input pixels) = sum(output pixels) </span></li></ol><ol class="c34" start="3"><li class="c30 c25 c5"><span class="c3">Upon initially looking over the dmimgadapt() tool, we initially thought the serial algorithm would be implemented using MPI techniques similar to the Wave Equation Problem encountered in our HW3 problem set. But after further review of the algorithm, we noticed that the pixel values are static and therefore landed itself to GPU implementation. </span></li><li class="c30 c25 c5"><span class="c3">We had to have 3 for-loop kernels to match dmimgadapt() source code. The Gaussian weights were relatively easy to implement in python in lines x and y of &#39;image_adapt_serial_gaussian.py.&#39;</span></li></ol><p class="c2"><span class="c6"></span></p>
+
+
 <br>
-<p>
+<hr>
+<p class="c5"><span class="c3">&nbsp;</span></p>
 
-</p>
+<h2 class="c5"><a name="h.lp9318555l"></a><span>GPU Implementation</span></h2><p class="c5"><span class="c3"><h3>Implemented 3 CUDA kernels that accessed shared/global memory w/ MPI</h3></span></p><p class="c2"><span class="c3"></span></p><p class="c5"><span class="c3 c24">3b). Describe your program design and why you chose the features you did.</span></p><p class="c2"><span class="c3 c24"></span></p><ol class="c34" start="1"><li class="c30 c25 c5"><span class="c3 c24">pyCUDA</span><span class="c3">: We decided to use pyCUDA to take advantage of the global memory and thread kernel computation</span></li></ol><ol type="a" start="1"><li class="c0 c30"><span class="c3">
+    
+    
+    &nbsp;
+    3 for loops kernel made it ideal to implement into 3 CUDA kernels</span></li></ol><ol class="c34" start="2"><li class="c30 c25 c5"><span class="c3 c24">CUDA</span><span class="c3">: All IMG, BOX, NORM, OUT array were read from CPU to GPU once, all kernel&rsquo;s accessed the global memory, then only the OUT array was written from GPU to CPU to reduce expensive calls.</span></li></ol><ol type="a" start="1"><li class="c0 c30"><span class="c3">
+        
+        &nbsp;
+        Global memory: Each thread by block dimensions were 32x32 as allowable by machine setup, with nBx x nBy &nbsp;blocks, given the image dimension. Each thread read/wrote to IMG, BOX, NORM, OUT in global memory</span></li><li class="c0 c30"><span class="c3">
+            
+            &nbsp;
+            Shared memory: Respective IMG, BOX, NORM, OUT data from global memory read into shared memory. Smoothing stencil sizes exceeding the bounds of shared memory were forced to use global memory.</span></li></ol><ol class="c34" start="3"><li class="c30 c25 c5"><span class="c3 c24">Correctness</span><span class="c3">: Pairs of serial and parallel output images were read and each pixel was cross-checked to ensure that the X-Ray source hit count was uncorrupted. Total relative error was computed over every single pixel.</span></li><li class="c30 c25 c5"><span class="c3 c24">Speed-up</span><span class="c3">: We measured speedup by measuring time in serial and parallel implementations. The time.time() cu.Event() libraries were used and summed independently for accurate measurement.</span></li><li class="c30 c25 c5"><span class="c3 c24">MPI</span><span class="c3">: To facilitate processing of a massively large dataset, we implemented the a MPI/CUDA solution to read in a maximum of 9 images at a time over the GPU. We did not try to process higher groups of images for fear of insufficient ranks.</span></li></ol>
+            
+            <p class="c5"><span class="c3">&nbsp;</span></p>
+            <p class="c5"><span class="c3">&nbsp;</span></p>
+            <p class="c2"><span class="c6"></span></p><hr><p class="c2"><span class="c6"></span></p><p class="c2"><span class="c6"></span></p><hr><p class="c2"><span class="c6"></span></p><p class="c2"><span class="c3"></span></p><h2 class="c5">
 
 </div>
 
