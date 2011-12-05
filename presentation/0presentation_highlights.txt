@@ -25,14 +25,13 @@ Notes
 
 
 ++ EXPLAIN WHAT ADAPTIVE SMOOTHING IS AND WHY IT'S AN INTERESTING GPU PROBLEM
-    ++ The algorithm adaptively smooths the data and preserves small scale features while larger
-        features get soothed out over a larger area.  
+
+    ++ The algorithm adaptively smooths the data and preserves small scale features while larger features get soothed out over a larger area.  
     ++ A diagram or visual showing how the smoothing stencil works
-    ++ Explain Threshold and RadMax parameters
-    ++ Emphasize that there is a need for 3 for loops which is costly for serial, but highly optimiziable in GPU
+
     ++ This is a computationally intensive application that lends itself beautifully to GPU methods.  
-    ++ One such application that would have tremendous benefit is a NASA open-source toolkit for astronomers to
-        analyze data collected from Chandra X-Ray Satellite Observatory. 
+
+    ++ One such application that would have tremendous benefit is a NASA open-source toolkit for astronomers to analyze data collected from Chandra X-Ray Observatory. 
 
 ++ CURRENT CPU BOTTLENECK VS. GPU FUTURE 
     ++ CLARIFY AND MAKE SHORTER? (Using the traditional methods the Chandra data set needs to be broken down into smaller pieces to make the execution occur in a timely manner, on the order of 30+ minutes.  With a GPU implementation, the dataset no longer needs to be split apart.  An entire observation can be smoothed in XXXXINSERT TIMEXXXX time.)
@@ -60,10 +59,7 @@ Notes
 + Insights gained
     ++ GPU pwns CPU
     ++ Shared memory is not always better than Global memory. Inconsistent times because each pixel has a varying box
-        stencil size that reach out of bounds. We read and write once from global, so not much cost savings from
-        initializing shared memory
+        stencil size that reach out of bounds. We read and write once from global, so not much cost savings from initializing shared memory
 
 + Final point
-    ++ Adaptive smoothing is a simple example showing how "dumb" CPU implementations can be made into "smart"
-        GPU implementations. Advisor said not only applications in astronomy, but also medical imagery, animation
-        rendering, and military applications.
+    ++ Adaptive smoothing is a simple example showing how "dumb" CPU implementations can be made into "smart" GPU implementations. Advisor said not only applications in astronomy, but also medical imagery, animation rendering, and military applications.
