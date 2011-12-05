@@ -77,8 +77,8 @@ kernel_smooth_source = \
     float ss    = qq;
 
     // Shared memory
-    extern __shared__ float s_IMG[];
-    s_IMG[stid] = IMG[gtid];
+    //extern __shared__ float s_IMG[];
+    //s_IMG[stid] = IMG[gtid];
     __syncthreads();
     
     // Compute all pixels except for image border
@@ -146,10 +146,10 @@ kernel_norm_source = \
     int gtid = j * Ly + i;  
 
     // Shared memory for IMG and NORM
-    extern __shared__ float s_IMG[];
-    extern __shared__ float s_NORM[];
-    s_IMG[stid] = IMG[gtid];
-    s_NORM[stid] = NORM[gtid];
+    // extern __shared__ float s_IMG[];
+    // extern __shared__ float s_NORM[];
+    // s_IMG[stid] = IMG[gtid];
+    // s_NORM[stid] = NORM[gtid];
     __syncthreads();    
 
     // Compute all pixels except for image border
@@ -187,8 +187,8 @@ kernel_out_source = \
     float sum   = 0.0;
     float ksum  = 0.0;
 
-    extern __shared__ float s_IMG[];
-    s_IMG[stid] = IMG[gtid];
+    // extern __shared__ float s_IMG[];
+    // s_IMG[stid] = IMG[gtid];
     __syncthreads();
 
     // Compute all pixels except for image border
@@ -224,7 +224,7 @@ out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
 # Allocate memory and constants
 smem_size   = int(TPBx*TPBy*4)
 
-# Copy image to device
+Copy arrays to device once
 IMG_device          = gpuarray.to_gpu(IMG)
 BOX_device          = gpuarray.to_gpu(BOX)
 NORM_device         = gpuarray.to_gpu(NORM)
@@ -271,7 +271,7 @@ out_kernel_stop_time.record()
 
 total_stop_time = time.time()
 
-# Copy image to host
+# Copy image once from device to host
 IMG_out = OUT_device.get()
 
 # Debug

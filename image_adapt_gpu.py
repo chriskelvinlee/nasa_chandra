@@ -10,6 +10,9 @@ from pycuda.reduction import ReductionKernel
 from pycuda.elementwise import ElementwiseKernel
 import time
 
+# Set debug to 1 to output debug.txt
+DEBUG = 0
+
 """
 # DOES NOT SEEM TO WORK FOR RESONANCE
 #Get the input filename from the command line
@@ -244,7 +247,7 @@ out_kernel = nvcc.SourceModule(kernel_out_source).get_function("outFilter")
 # Allocate memory and constants
 smem_size   = int(TPBx*TPBy*4)
 
-# Copy image to device
+# Copy arrays to device once
 IMG_device          = gpuarray.to_gpu(IMG)
 BOX_device          = gpuarray.to_gpu(BOX)
 NORM_device         = gpuarray.to_gpu(NORM)
@@ -298,27 +301,26 @@ out_kernel(Lx, Ly, IMG_device, BOX_device, OUT_device,
     block=( TPBx, TPBy,1 ),  grid=( nBx, nBy ), shared=( smem_size ) )
 out_kernel_stop_time.record()
 
-# Copy image to host and 
+# Copy image to host and print
 IMG_out = OUT_device.get()
-BOX_out = BOX_device.get()
-NORM_out = NORM_device.get()
-
-
-
-total_stop_time = time.time()
 imsave('{}_smoothed_gpu_s.png'.format(os.path.splitext(file_name)[0]), IMG_out, cmap=cm.gray, vmin=0, vmax=1)
-# Debug
-f = open('debug_gpu_s.txt', 'w')
-set_printoptions(threshold='nan')
-print >>f,'IMG'
-print >>f, str(IMG).replace('[',' ').replace(']', ' ')
-print >>f,'OUTPUT'
-print >>f, str(IMG_out).replace('[',' ').replace(']', ' ')
-print >>f,'BOX'
-print >>f, str(BOX_out).replace('[',' ').replace(']', ' ')
-print >>f,'NORM'
-print >>f, str(NORM_out).replace('[',' ').replace(']', ' ')
-f.close()
+total_stop_time = time.time()
+
+if (DEBUG):
+    BOX_out = BOX_device.get()
+    NORM_out = NORM_device.get()
+    # Debug
+    f = open('debug_gpu_s.txt', 'w')
+    set_printoptions(threshold='nan')
+    print >>f,'IMG'
+    print >>f, str(IMG).replace('[',' ').replace(']', ' ')
+    print >>f,'OUTPUT'
+    print >>f, str(IMG_out).replace('[',' ').replace(']', ' ')
+    print >>f,'BOX'
+    print >>f, str(BOX_out).replace('[',' ').replace(']', ' ')
+    print >>f,'NORM'
+    print >>f, str(NORM_out).replace('[',' ').replace(']', ' ')
+    f.close()
 
 # Print results & save
 

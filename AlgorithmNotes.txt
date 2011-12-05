@@ -22,7 +22,7 @@ Or instead of a Gaussian use a Cone, Tophat, Boxcar, or other convolution method
 
 
 # ----------------------
-# Sample Code for serial method
+# Pseudo Code for serial method
 #-----------------------
 
 LOAD image, IMG
